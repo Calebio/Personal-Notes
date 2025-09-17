@@ -286,7 +286,7 @@ git clone https://github.com/MicrosoftDocs/mslearn-host-domain-azure-dns.git
 
 
 
-[Full study Docs]([docs](https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-104))
+[Full study Docs](https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-104)
 
 
 - Storage Blob Data Contributor vs Storage Account Contributor (Research).
