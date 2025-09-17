@@ -286,7 +286,7 @@ git clone https://github.com/MicrosoftDocs/mslearn-host-domain-azure-dns.git
 
 
 
-
+[Full study Docs]([docs](https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-104))
 
 
 - Storage Blob Data Contributor vs Storage Account Contributor (Research).
@@ -299,4 +299,5 @@ git clone https://github.com/MicrosoftDocs/mslearn-host-domain-azure-dns.git
 - Licensing/IAM
 - Implement and manage virtual networking
 - Deploy and manage Azure compute resources
+- Azure Virtual Desktop
 
