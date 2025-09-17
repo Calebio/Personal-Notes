@@ -221,6 +221,8 @@ git clone https://github.com/MicrosoftDocs/mslearn-host-domain-azure-dns.git
 
 - Application security groups allow you to group together the network interfaces from multiple virtual machines, and then use the group as the source or destination in an NSG rule. The network interfaces must be in the same virtual network.
 
+- Network Security Group(NSG) is a Regional service.
+
 
 - Azure Network Watcher is a regional service that allows you to monitor and diagnose conditions at a network scenario level in, to, and from Azure.
 
@@ -284,6 +286,20 @@ git clone https://github.com/MicrosoftDocs/mslearn-host-domain-azure-dns.git
   - Set Replication to Zone-redundant storage (ZRS).
   - Create a backup policy and configure the backup for the VM.
 
+
+- By default, backups of virtual machines are kept for 30 days.
+
+- Powershell CMDlets
+  - `Add-AzVhd`: Uploads an on-premises VHD to Azure
+
+  - `New-AzVM`: Used to create a new virtual machine
+
+  - `New-AzDisk`: Used to create a managed disk
+
+  - `New-AzDataShare`: Used to create an Azure data share
+
+
+- The Microsoft Azure Recovery Service (MARS) agent must be installed on the servers. The MARS agent is mandatory to perform backup and recovery services for any servers.
 
 
 [Full study Docs](https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-104)
