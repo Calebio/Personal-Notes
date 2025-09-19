@@ -301,6 +301,20 @@ git clone https://github.com/MicrosoftDocs/mslearn-host-domain-azure-dns.git
 
 - The Microsoft Azure Recovery Service (MARS) agent must be installed on the servers. The MARS agent is mandatory to perform backup and recovery services for any servers.
 
+- For Monitoring, Metrics alerts and Action Log Alerts are different.
+  - **Metric** has signal type(`e.g. CPU Percentage, Disk IOPS, Memory %, Queue Length`), Aggregation(`Average, Minimum, Maximum, Total, Count`), Operator(==,>,<>), Threshold(`mainly numeric`)
+  - **Activity Logs** has signal type(`also called Administrative or Service Health events`) 
+
+**Quick exam memory cue**
+- Metric = numbers you can average 
+  - Metric = Motion (live performance numbers)
+
+- Activity = events you can filter
+  - Activity = Action (management-plane operations)
+
+
+- When using Powershell cmdlet for ARM deployment You can use the -TemplateUri parameter to specify a web-based location, such as GitHub or an Azure Blob Storage account. You can use `-Templatefile` to specify a local file. You can use `-TemplateSpecId` to specify a template that was save to Azure as a template spec.
+
 
 [Full study Docs](https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-104)
 
