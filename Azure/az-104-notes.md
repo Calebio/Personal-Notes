@@ -313,6 +313,8 @@ git clone https://github.com/MicrosoftDocs/mslearn-host-domain-azure-dns.git
   - Activity = Action (management-plane operations)
 
 
+- The alert state is manually set by the user and does not have any automated logic behind it. The alert state can be either New, Acknowledged, or Closed.
+
 - When using Powershell cmdlet for ARM deployment You can use the -TemplateUri parameter to specify a web-based location, such as GitHub or an Azure Blob Storage account. You can use `-Templatefile` to specify a local file. You can use `-TemplateSpecId` to specify a template that was save to Azure as a template spec.
 
 
