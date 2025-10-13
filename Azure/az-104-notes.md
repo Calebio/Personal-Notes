@@ -1,3 +1,11 @@
+---
+attachments: [Clipboard_2025-07-13-19-27-23.png]
+pinned: true
+title: Azure Administrator AZ-104 Notes
+created: '2025-06-29T14:35:31.447Z'
+modified: '2025-09-06T03:24:50.425Z'
+---
+
 # Azure Administrator AZ-104 Notes
 
 **Practice Exam:** https://certpreps.com/exams/az104/practice/free-practice-exam-1copy-8/
@@ -123,20 +131,6 @@ The policy remediation task feature is used to bring resources into compliance b
 
 ![](@attachment/Clipboard_2025-07-13-19-27-23.png)
 
-- ***Azure Blob Storage***
-Azure Blob Storage is Microsoft's object storage solution for the cloud. Blob Storage is optimized for storing massive amounts of unstructured or nonrelational data, such as text, audio, video or binary data.
-
-
-- ***Azure Files***
-Azure Files enables you to set up highly available network file shares. Shares can be accessed by using the Server Message Block (SMB) protocol and the Network File System (NFS) protocol. Multiple virtual machines can share the same files with both read and write access.
-
-
-- ***Azure Queue Storage***
-Azure Queue Storage is used to store and retrieve messages. Queue messages can be up to 64 KB in size, and a queue can contain millions of messages. Queues are used to store lists of messages to be processed asynchronously.
-
-
-- ***Azure Table Storage***
-Azure Table storage is a service that stores nonrelational structured data (also known as structured NoSQL data) in the cloud, providing a key/attribute store with a schemaless design. Because Table storage is schemaless, it's easy to adapt your data as the needs of your application evolve.
 
 
 **Azure Backup**
@@ -177,6 +171,18 @@ Azure DNS provides the following security features:
 
 
 git clone https://github.com/MicrosoftDocs/mslearn-host-domain-azure-dns.git
+
+## Azure Storage
+Azure Storage is Microsoft's cloud storage solution for modern data storage scenarios. Azure Storage offers a massively scalable object store for data objects. It provides a file system service for the cloud, a messaging store for reliable messaging, and a NoSQL store.
+
+**Catogories of Azure Storage**
+Azure Storage supports 3 categories of data:
+
+- **Virtual machine data:** Virtual machine data storage includes disks and files. Disks are persistent block storage for Azure IaaS virtual machines. Files are fully managed file shares in the cloud.
+
+- **Unstructured data:** Unstructured data is the least organized. Unstructured data can be stored by using Azure Blob Storage and **Azure Data Lake Storage.** **Blob Storage** is a highly scalable, REST-based cloud object store. Azure Data Lake Storage is the Hadoop Distributed File System (HDFS) as a service.
+
+- **Structured data:** Structured data is stored in a relational format that has a shared schema. Structured data can be stored by using **Azure Table Storage**(this is nonrelational and schemaless but is structured like relational), **Azure Cosmos DB**, and **Azure SQL Database**.
 
 
 ## Extra notes
@@ -220,8 +226,6 @@ git clone https://github.com/MicrosoftDocs/mslearn-host-domain-azure-dns.git
 - "Virtual Machine Contributor" role allows users to manage virtual machines and attached disks but does not grant permissions to manage disk snapshots.
 
 - Application security groups allow you to group together the network interfaces from multiple virtual machines, and then use the group as the source or destination in an NSG rule. The network interfaces must be in the same virtual network.
-
-- Network Security Group(NSG) is a Regional service.
 
 
 - Azure Network Watcher is a regional service that allows you to monitor and diagnose conditions at a network scenario level in, to, and from Azure.
@@ -269,8 +273,11 @@ git clone https://github.com/MicrosoftDocs/mslearn-host-domain-azure-dns.git
 
 - When a private DNS zone with auto-registration enabled is added a vnet, resources like vm in the vnet will be automatically added as an A record to the fabrikam.com private DNS zone.
 
+- Vnet is a global service. Global virtual network peering allows you to peer virtual networks across different regions and subscriptions, even when they are linked to different Microsoft Entra tenants.
+
 - SSPR can be directly assigned only to a group of users or to ALL users but not to individual users
 
+- Windows based images are supported only by App Service and Azure Container Instances, App Service and Azure Container Instances both support Windows-based containers.
 
 - While it is generally recommended to use a Key Vault in the same region as the resource for performance and latency considerations, keyvault can be accessed globally.
 
@@ -280,6 +287,7 @@ git clone https://github.com/MicrosoftDocs/mslearn-host-domain-azure-dns.git
 
 - `SignedVersion (sv)`, `SignedPermissions (sp)`, `Signature (sig)`, `SignedServices (ss)` and `SignedResourceTypes (srt)` are required to create a SAS token
 
+- A Group cannot be deleted if it have has a License assigned to it, Users can be deleted even if they are part of a group that has a License assigned to it
 
 - To restore a VM backup follow these steps in this sequence:
   - Create a Recovery Services vault.
@@ -287,38 +295,33 @@ git clone https://github.com/MicrosoftDocs/mslearn-host-domain-azure-dns.git
   - Create a backup policy and configure the backup for the VM.
 
 
-- By default, backups of virtual machines are kept for 30 days.
+- You can use the SFTP protocol to access, transfer, and manage files on remote systems. SFTP enables you  to more securely collaborate with externally if you need to transfer files in an encrypted form.
 
-- Powershell CMDlets
-  - `Add-AzVhd`: Uploads an on-premises VHD to Azure
+- Windows client for NFS isn't supported yet.
 
-  - `New-AzVM`: Used to create a new virtual machine
+- When you create an NFS 3.0 storage account, the GRS, GZRS, and RA-GRS redundancy options aren’t supported.
 
-  - `New-AzDisk`: Used to create a managed disk
+- For SFTP-enabled Azure storage accounts, you can't use GRS or geo-zone-redundant storage (GZRS).
 
-  - `New-AzDataShare`: Used to create an Azure data share
+- Object replication doesn't support blob snapshots. Any snapshots on a blob in the source account aren't replicated to the destination account.
 
+- Object replication is supported when the source and destination accounts are in the Hot, Cool, or Cold tier. The source and destination accounts can be in different tiers.
 
-- The Microsoft Azure Recovery Service (MARS) agent must be installed on the servers. The MARS agent is mandatory to perform backup and recovery services for any servers.
+- **Block blobs.** A block blob consists of blocks of data that are assembled to make a blob. Most Blob Storage scenarios use block blobs. Block blobs are ideal for storing text and binary data in the cloud, like files, images, and videos. The block blob type is the default type for a new blob. When you're creating a new blob, if you don't choose a specific type, the new blob is created as a block blob.
 
-- For Monitoring, Metrics alerts and Action Log Alerts are different.
-  - **Metric** has signal type(`e.g. CPU Percentage, Disk IOPS, Memory %, Queue Length`), Aggregation(`Average, Minimum, Maximum, Total, Count`), Operator(==,>,<>), Threshold(`mainly numeric`)
-  - **Activity Logs** has signal type(`also called Administrative or Service Health events`) 
-
-**Quick exam memory cue**
-- Metric = numbers you can average 
-  - Metric = Motion (live performance numbers)
-
-- Activity = events you can filter
-  - Activity = Action (management-plane operations)
+- **Append blobs.** An append blob is similar to a block blob because the append blob also consists of blocks of data. The blocks of data in an append blob are optimized for append operations. Append blobs are useful for logging scenarios, where the amount of data can increase as the logging operation continues.
 
 
-- The alert state is manually set by the user and does not have any automated logic behind it. The alert state can be either New, Acknowledged, or Closed.
-
-- When using Powershell cmdlet for ARM deployment You can use the -TemplateUri parameter to specify a web-based location, such as GitHub or an Azure Blob Storage account. You can use `-Templatefile` to specify a local file. You can use `-TemplateSpecId` to specify a template that was save to Azure as a template spec.
+- **Page blobs.** A page blob can be up to 8 TB in size. Page blobs are more efficient for frequent read/write operations. Azure Virtual Machines uses page blobs for operating system disks and data disks.
 
 
-[Full study Docs](https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-104)
+**Note:** After you create a blob, you can't change its type.
+
+- A service SAS or account SAS is signed with the account key, while the user delegation SAS is signed with Microsoft Entra credentials and applies to blobs only.
+
+
+**Types of SAS:**
+  - 
 
 
 - Storage Blob Data Contributor vs Storage Account Contributor (Research).
@@ -331,5 +334,3 @@ git clone https://github.com/MicrosoftDocs/mslearn-host-domain-azure-dns.git
 - Licensing/IAM
 - Implement and manage virtual networking
 - Deploy and manage Azure compute resources
-- Azure Virtual Desktop
-
