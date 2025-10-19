@@ -256,6 +256,8 @@ Azure Storage supports 3 categories of data:
 
 - Azure resource locks such as Read-only and Delete are designed to prevent deletion or modification of resources, but they do not block move operations.
 
+- When a resource group is locked with Read Only, you cannot add or move any resources into it. This type of lock prevents all write operations, including the action of moving a resource (such as App1) into the locked resource group. 
+
 - When setting up Log Analytics workspace to store backup reporting data, the location and subscription where the Log Analytics workspace can be created is independent of the location and subscription of where the vault exists.
 
 
@@ -275,7 +277,7 @@ Azure Storage supports 3 categories of data:
 
 - Vnet is a global service. Global virtual network peering allows you to peer virtual networks across different regions and subscriptions, even when they are linked to different Microsoft Entra tenants.
 
-- SSPR can be directly assigned only to a group of users or to ALL users but not to individual users
+- SSPR can be directly assigned only to a group(for security groups and Microsoft 365 groups.) of users or to ALL users but not to individual users
 
 - Windows based images are supported only by App Service and Azure Container Instances, App Service and Azure Container Instances both support Windows-based containers.
 
@@ -326,6 +328,18 @@ Azure Storage supports 3 categories of data:
 
 - Storage Blob Data Contributor vs Storage Account Contributor (Research).
 
+- Azure Bastion requires a Standard Public IP address for both the Basic and Standard SKUs. Additionally, the IP address must be IPv4, have a Regional tier, and use a Static assignment.
+
+-  Azure Bastion requires a subnet prefix of at least /26 to function properly means it can be /24 or /25 but nothing more than /26. This prefix size provides a sufficient number of IP addresses for Azure Bastion to manage connections and maintain operational capacity.
+
+- Self-Service Password Reset (SSPR) in Microsoft Entra, a user must have at least the Authentication Policy Administrator role.
+
+- For Azure Storage encryption, RSA keys support the maximum bit length of 4096 bits, which is currently the highest supported bit length in Azure Key Vault for customer-managed keys.
+
+- Network security groups is a regional service, when assigning it make sure the resources you are assinging it to are in the same region.
+
+-  Azure App Service backups require an Azure Storage account because they rely on storage account to store the backup data.
+
 **Side Note:** In practice test 2, check question 3 for flagging.
 
 
@@ -334,3 +348,12 @@ Azure Storage supports 3 categories of data:
 - Licensing/IAM
 - Implement and manage virtual networking
 - Deploy and manage Azure compute resources
+
+
+
+
+
+
+
+
+
