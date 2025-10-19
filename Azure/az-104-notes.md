@@ -321,11 +321,6 @@ Azure Storage supports 3 categories of data:
 
 - A service SAS or account SAS is signed with the account key, while the user delegation SAS is signed with Microsoft Entra credentials and applies to blobs only.
 
-
-**Types of SAS:**
-  - 
-
-
 - Storage Blob Data Contributor vs Storage Account Contributor (Research).
 
 - Azure Bastion requires a Standard Public IP address for both the Basic and Standard SKUs. Additionally, the IP address must be IPv4, have a Regional tier, and use a Static assignment.
