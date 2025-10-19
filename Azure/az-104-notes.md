@@ -329,6 +329,8 @@ Azure Storage supports 3 categories of data:
 
 -  Azure Bastion requires a subnet prefix of at least /26 to function properly means it can be /24 or /25 but nothing more than /26. This prefix size provides a sufficient number of IP addresses for Azure Bastion to manage connections and maintain operational capacity.
 
+-  Azure Bastion allows connections to virtual machines within the same virtual network or peered virtual networks.
+
 -  Azure Files, is currently only supported for Linux-based Azure container instances and is used to persist files.
 
 - A user must have at least the Authentication Policy Administrator role before they can configure Self-Service Password Reset (SSPR) in Microsoft Entra.
