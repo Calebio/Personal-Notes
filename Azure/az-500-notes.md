@@ -25,10 +25,12 @@ When deploying strong authentication, configure administrators and privileged us
 Members of a security group can include users, devices, service principals, and other groups (also known as nested groups), which define access policy and permissions. Owners of a security group can include users and service principals.
 
 **Note**
-When nesting an existing security group to another security group, only members in the parent group will have access to shared resouces and applications. Nested group members don't have the same assigned membership as the parent group members.
+When nesting an existing security group to another security group, only members in the parent group will have access to shared resources and applications. Nested group members don't have the same assigned membership as the parent group members.
 
 **Microsoft 365:** Provides collaboration opportunities by giving group members access to a shared mailbox, calendar, files, SharePoint sites, and more.
 This option also lets you give people outside of your organization access to the group. Members of a Microsoft 365 group can only include users. Owners of a Microsoft 365 group can include users and service principals.
+
+**How is Microsoft Entra Cloud Sync different from Microsoft Entra Connect Sync?**
 
 
 
