@@ -30,7 +30,35 @@ When nesting an existing security group to another security group, only members 
 **Microsoft 365:** Provides collaboration opportunities by giving group members access to a shared mailbox, calendar, files, SharePoint sites, and more.
 This option also lets you give people outside of your organization access to the group. Members of a Microsoft 365 group can only include users. Owners of a Microsoft 365 group can include users and service principals.
 
-**How is Microsoft Entra Cloud Sync different from Microsoft Entra Connect Sync?**
+
+
+##Implement Entra ID protection
+- Automate the detection and remediation of identity-based risks.
+
+- Investigate risks using data in the portal.
+
+- Export risk detection data to third-party utilities for further analysis
+
+
+- Entra connect is a way to sync on-prem and cloud identities
+
+
+
+**Authentication options:**
+
+- Password Hash sync  ==> this makes sure that password from the cloud is synced with the on-prem
+
+- Pass-through   ==> this does not sync passwords between cloud and on-prem.
+
+- Federated Authentication  ==> Requires an external system for authentication (like an authentication server)
+
+
+**Security principle:** Protect the data in transit against 'out of band' attacks (such as traffic capture) using encryption to ensure that attackers can't easily read or modify the data. Set the network boundary and service scope where data in transit encryption is mandatory inside and outside of the network. While this is optional for traffic on private networks, this is critical for traffic on external and public networks.
+
+**Security principle:** Ensure that your virtual network deployment aligns to your enterprise segmentation strategy defined in the GS-2 security control. Any workload that could incur higher risk for the organization should be in isolated virtual networks.
+
+
+
 
 
 
