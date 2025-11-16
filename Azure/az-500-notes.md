@@ -57,6 +57,27 @@ This option also lets you give people outside of your organization access to the
 
 **Security principle:** Ensure that your virtual network deployment aligns to your enterprise segmentation strategy defined in the GS-2 security control. Any workload that could incur higher risk for the organization should be in isolated virtual networks.
 
+- You can create custom, or user-defined (static), routes in Azure to override Azure's default system routes, or to add more routes to a subnet's route table. In Azure, you create a route table, then associate the route table to zero or more virtual network subnets. Each subnet can have zero or one route table associated to it. If there are conflicting route assignments, user-defined routes override the default routes. You are limited to 1,000 routes per route table.
+
+**You can specify the following next hop types when creating a user-defined route:**
+
+- **Virtual Appliance:** A virtual appliance is a virtual machine that typically runs a network application, such as a firewall. When using a Virtual appliance your next hop can be a Private Ip address of a network interface attached to a virtual machine OR the private ip address of an Azure internal load balancer.
+
+- **Virtual network gateway:** Specify when you want traffic destined for specific address prefixes routed to a virtual network gateway. The virtual network gateway must be created with type VPN. 
+
+- **None:** This is used when you want to drop the traffic or have not fully configured UDR.
+
+- **Virtual network:** Specify the Virtual network option when you want to override the default routing within a virtual network.
+
+- Internet: Specify the Internet option when you want to explicitly route traffic destined to an address prefix to the Internet, or if you want traffic destined for Azure services with public IP addresses kept within the Azure backbone network.
+
+
+## References
+
+- [Azure subscriptions quota and service limits](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits?toc=%2Fazure%2Fvirtual-network%2Ftoc.json#networking-limits)
+
+- [Routing Examples for UDR's](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview#routing-example)
+
 
 
 
