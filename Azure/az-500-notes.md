@@ -72,6 +72,12 @@ This option also lets you give people outside of your organization access to the
 - Internet: Specify the Internet option when you want to explicitly route traffic destined to an address prefix to the Internet, or if you want traffic destined for Azure services with public IP addresses kept within the Azure backbone network.
 
 
+
+**Service Endpoint** gives access from subnets in a VNET to a range of multiple services e.g. A range of Storage Accounts. The downside of this option is, the resources from the subnet can access all the Storage accounts within this scope, which can increase blast radius in case of a security breach. The logic behind this is that the service endpoint creates a network card that links to the Storage service in the selected subnet and gives it a private ip within the subnet.
+
+
+**Private Endpoint** gives access from subnet of a VNET to a specific service e.g. One specific Storage Account and the specific storage type like blob or file share. This is more preferred from a security POV. The logic behind this is that the service endpoint creates a network card that links to the Storage service in the selected subnet and gives it a private ip within the subnet.
+
 ## References
 
 - [Azure subscriptions quota and service limits](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits?toc=%2Fazure%2Fvirtual-network%2Ftoc.json#networking-limits)
