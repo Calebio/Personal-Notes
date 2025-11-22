@@ -78,6 +78,14 @@ This option also lets you give people outside of your organization access to the
 
 **Private Endpoint** gives access from subnet of a VNET to a specific service e.g. One specific Storage Account and the specific storage type like blob or file share. This is more preferred from a security POV. The logic behind this is that the service endpoint creates a network card that links to the Storage service in the selected subnet and gives it a private ip within the subnet.
 
+- A virtual hub is a Microsoft-managed virtual network that serves as a central point for connecting other virtual networks and on-premises networks.
+
+- Azure Firewall Manager allows centralized management and configuration of multiple Azure Firewall instances across different regions, enabling the creation and management of secured virtual hubs.
+
+- On Microsoft Defender External Attack Surface Management (Defender EASM) Dashboard the “Approved Inventory” assets are always represented in dashboard charts and are scanned daily to ensure data recency.
+
+- In Azure Blob storage, while container names are utilized in access conditions, blob index tags offer a more customizable attribute-based approach when configuring ABAC.
+
 ## References
 
 - [Azure subscriptions quota and service limits](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits?toc=%2Fazure%2Fvirtual-network%2Ftoc.json#networking-limits)
