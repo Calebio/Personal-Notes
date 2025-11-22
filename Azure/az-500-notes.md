@@ -86,11 +86,23 @@ This option also lets you give people outside of your organization access to the
 
 - In Azure Blob storage, while container names are utilized in access conditions, blob index tags offer a more customizable attribute-based approach when configuring ABAC.
 
+- When creating a new resource for VNET Integration, it requires an unused subnet that's an IPv4 /26 block or larger. Also, the subnet can't have service endpoint policies enabled.
+
+- Firewall can be deployed to must be named AzureFirewallSubnet. Hence we can only use AzureFirewallSubnet and not any other
+
+- If service endpoint is enabled from a vm to access a resource (e.g VM to db) Then even if the VM has a public ip address allowed it must still use the service endpoint.
+
+- Microsoft Defender for Cloud limits the count of alert notifications that is sent out. 4 high severity alerts are allowed while 2 and 1 medium and low severity alerts respectively are allowed per day.
+
+- Microsoft Defender for Cloud only allows assignment of Initiatives (which is a collection of policies) to your subscriptions. 
+
 ## References
 
 - [Azure subscriptions quota and service limits](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits?toc=%2Fazure%2Fvirtual-network%2Ftoc.json#networking-limits)
 
 - [Routing Examples for UDR's](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview#routing-example)
+
+- [Virtual Network Integration & Limitations](https://learn.microsoft.com/en-us/azure/app-service/overview-vnet-integration#limitations)
 
 
 
