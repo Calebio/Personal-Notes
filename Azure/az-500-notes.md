@@ -94,7 +94,49 @@ This option also lets you give people outside of your organization access to the
 
 - Microsoft Defender for Cloud limits the count of alert notifications that is sent out. 4 high severity alerts are allowed while 2 and 1 medium and low severity alerts respectively are allowed per day.
 
-- Microsoft Defender for Cloud only allows assignment of Initiatives (which is a collection of policies) to your subscriptions. 
+- Microsoft Defender for Cloud only allows assignment of Initiatives (which is a collection of policies) to your subscriptions.
+
+- Service endpoints are service-type specific and not resource-specific (use Private endpoints for specific resource).
+
+- Standard tier of Azure firewall supports the below list of features -
+
+  - Built-in high availability
+
+  - Availability Zones
+
+  - Unrestricted cloud scalability
+
+  - Application FQDN filtering rules
+
+  - Network traffic filtering rules
+
+  - FQDN tags Service tags
+
+  - Threat intelligence
+
+  - DNS proxy
+
+  - Custom DNS FQDN in network rules
+
+  - Deployment without public IP address in Forced Tunnel Mode
+
+  - Outbound SNAT support
+
+  - Inbound DNAT support
+
+  - Multiple public IP addresses
+
+  - Azure Monitor logging
+
+  - Forced tunneling
+
+  - Web categories
+
+  - Certifications
+ 
+- In Azure AD, Synchronization Rules Editor allows you to define and manage synchronization rules for Azure AD Connect. By creating an attribute-based filtering rule, you can exclude users based on specific attributes,
+
+- JIT feature needs an NSG to be attached to a VM before it enables the temporary access. JIT adds a temporary rule in NSG to enable the access. 
 
 ## References
 
@@ -103,6 +145,8 @@ This option also lets you give people outside of your organization access to the
 - [Routing Examples for UDR's](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview#routing-example)
 
 - [Virtual Network Integration & Limitations](https://learn.microsoft.com/en-us/azure/app-service/overview-vnet-integration#limitations)
+
+- [Azure Firewall](https://learn.microsoft.com/en-us/azure/firewall/features-by-sku)
 
 
 
