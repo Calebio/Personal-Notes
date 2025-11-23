@@ -138,6 +138,20 @@ This option also lets you give people outside of your organization access to the
 
 - JIT feature needs an NSG to be attached to a VM before it enables the temporary access. JIT adds a temporary rule in NSG to enable the access. 
 
+- Cloud Application Administrator role to Admin1, because this role grants the ability to manage enterprise applications, including assigning users and groups to apps like App1. 
+
+- Using certificate credentials for Microsoft Entra app registration ensures that the credentials are not transmitted during authentication, that they are stored securely, and that the credential usage follows the principle of least privilege.
+
+- To run workloads that are compliant with GDPR, custom initiatives should be to be created. GDPR compliance initiatives are not yet available in Azure.
+
+- Defender EASM requires at least one discovery group with a seed asset (such as a domain, ASN, or IP block) before it can begin external asset discovery.
+
+- Periodic recurring scans on Microsoft Defender for SQL vulnerability assessment is triggered once a week. This value cannot be changed and is set by Microsoft.
+
+- Azure Arc-enabled Kubernetes is the only configuration that includes Kubernetes and can be deployed to AWS.
+
+
+
 ## References
 
 - [Azure subscriptions quota and service limits](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits?toc=%2Fazure%2Fvirtual-network%2Ftoc.json#networking-limits)
@@ -147,6 +161,8 @@ This option also lets you give people outside of your organization access to the
 - [Virtual Network Integration & Limitations](https://learn.microsoft.com/en-us/azure/app-service/overview-vnet-integration#limitations)
 
 - [Azure Firewall](https://learn.microsoft.com/en-us/azure/firewall/features-by-sku)
+
+- [Azure Key Vault HSM](https://learn.microsoft.com/azure/key-vault/managed-hsm/overview)
 
 
 
