@@ -154,6 +154,84 @@ This option also lets you give people outside of your organization access to the
 
 - You can deploy an SQL managed instance to a dedicated virtual network subnet that does not have any resource connected. The subnet can have a service endpoint or can be delegated for a different service.
 
+**Azure Front Door**
+**Role:** Global Layer 7 Load Balancer & CDN. Scope: Global (Not deployed into a VNet; it sits at the "Edge" of Microsoft's network).
+
+**Key Features for AZ-500**
+- **Global Load Balancing:** Routes traffic to the closest backend (region) using Anycast protocol.
+
+- **WAF at the Edge:** Blocks attacks before they reach your VNet.
+
+- **Split TCP:** Optimizes connection speed by terminating the TCP connection at the nearest edge POP.
+
+- **Front Door Premium (Exam Critical):**
+
+  - **Private Link:** Support for connecting privately to your backend origins (App Services, Storage) avoiding public internet exposure.
+
+  - **Managed Bot Protection:** Advanced bot rules.
+
+- **WAF Policy:** Global WAF policies can be associated with Front Door.
+
+**Azure Application Gateway**
+**Role:** Regional Layer 7 (HTTP/HTTPS) Load Balancer & WAF. Scope: Regional (deployed into a Virtual Network subnet).
+
+**Key Features for AZ-500**
+- **Web Application Firewall (WAF):** Protects against OWASP Top 10 attacks (SQL Injection, XSS).
+
+  - **Tiers:** WAF_v2 is the standard for exams (supports auto-scaling and zone redundancy).
+
+  - **Modes:** Detection (logs only) vs. Prevention (blocks attacks).
+
+  - **Rules:** Uses Core Rule Sets (CRS) 3.x. You can create Custom Rules to block specific IPs or Geographies.
+
+- **Encryption:** Supports End-to-End TLS (encrypts traffic from gateway to backend) and SSL Termination (offloads encryption at the gateway).
+
+- **Networking:**
+
+  - Requires a dedicated subnet.
+
+  - **NSGs:** If you use an NSG on the App Gateway subnet, you must allow traffic on ports 65200-65535 for Azure infrastructure communication (Gateway Manager service tag).
+
+**Exam Tips & "Gotchas"**
+**Scenario:** "You need to protect a web app hosted in East US from SQL injection." -> **Answer:** Application Gateway with WAF.
+
+**Scenario:** "You need session affinity (sticky sessions) based on cookies." -> **Answer:** Application Gateway (Cookie-based affinity).
+
+**Connection Draining:** Know that this feature allows you to gracefully remove backend pool members (updates/maintenance) without dropping active connections.
+
+
+### Azure Firewall
+**Role:** Managed, Cloud-based Network Security Service (Layer 3-7).
+**Scope:** Regional (often placed in a Hub VNet).
+
+#### Key Features for AZ-500
+* **Standard vs. Premium (HIGH YIELD):**
+    * **Standard:** L3-L7 filtering, Threat Intelligence (Alert/Deny known malicious IPs), FQDN Tags.
+    * **Premium:** Adds **TLS Inspection** (decrypts HTTPS to inspect packet), **IDPS** (Intrusion Detection/Prevention System), and **URL Filtering** (can block `google.com/news` specifically, whereas Standard only sees `google.com`).
+* **Rule Processing Order (Must Memorize):**
+    1. **DNAT Rules** (Inbound traffic translation)
+    2. **Network Rules** (IPs, Ports, Protocols - L3/L4)
+    3. **Application Rules** (FQDNs, HTTP/S - L7)
+    * *Note: If a Network rule allows traffic, Application rules are NOT processed.*
+* **Management:** Controlled via **Azure Firewall Policy** (preferred for exams) or Classic Rules.
+
+#### Exam Tips & "Gotchas"
+* **Scenario:** "You need to prevent internal VMs from accessing malicious websites and inspect the content of encrypted HTTPS traffic." -> **Answer:** Azure Firewall **Premium** (because of TLS Inspection).
+* **Scenario:** "You need to allow Windows Update traffic for all VMs." -> **Answer:** Use an **Application Rule** with the `WindowsUpdate` FQDN Tag.
+* **DNS Proxy:** Azure Firewall can act as a DNS proxy to forward DNS queries from VMs to a custom DNS server or Azure DNS.
+
+---
+
+### Comparison Summary Table
+
+| Feature | **Application Gateway** | **Azure Front Door** | **Azure Firewall** |
+| :--- | :--- | :--- | :--- |
+| **OSI Layer** | Layer 7 (Web) | Layer 7 (Web) | Layer 3-7 (Network + App) |
+| **Scope** | Regional | Global | Regional |
+| **Primary Use** | Regional Web Apps, WAF | Global Web Apps, CDN | Network Security, Outbound Control |
+| **WAF Support** | Yes (Regional) | Yes (Global) | No (Uses IDPS/Threat Intel instead) |
+| **Backend Connectivity** | Direct IP / VNet Integration | Public IP or Private Link (Premium) | VNet Peering (Hub & Spoke) |
+| **TLS/SSL** | Termination & End-to-End | Termination (Edge) | **Inspection** (Forward Proxy - Premium) |
 
 
 ## References
