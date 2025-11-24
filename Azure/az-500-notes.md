@@ -234,6 +234,88 @@ This option also lets you give people outside of your organization access to the
 | **TLS/SSL** | Termination & End-to-End | Termination (Edge) | **Inspection** (Forward Proxy - Premium) |
 
 
+## Microsoft Defender for Cloud (MDC)
+**Role:** Cloud Native Application Protection Platform (CNAPP). Focuses on **CSPM** (Posture Management) and **CWP** (Workload Protection).
+
+### 1. Implement and Manage Cloud Governance
+MDC relies heavily on **Azure Policy** to drive governance.
+
+* **Microsoft Cloud Security Benchmark (MCSB):** The default policy initiative assigned to every subscription when you enable MDC. It replaces the old "Azure Security Benchmark."
+* **Regulatory Compliance Dashboard:**
+    * Used to audit against standards like **NIST 800-53, PCI DSS, ISO 27001, and SOC 2**.
+    * **Action:** You add these standards as "Compliance Policies" in the Environment Settings.
+    * **Exam Logic:** If a question asks how to generate a report for an auditor proving PCI compliance, the answer is the **Regulatory Compliance Dashboard** in MDC.
+* **Exemptions:** If a recommendation is not applicable (e.g., "MFA should be enabled" on a break-glass account), you create an **Exemption** (either for a specific resource or a subscription) to prevent it from lowering your Secure Score.
+
+### 2. Manage Security Posture (CSPM)
+**Primary Metric:** **Secure Score**.
+
+* **Secure Score:** A percentage measurement of your security stance.
+    * **Remediation:** Recommendations are grouped into "Controls." You must fix *all* recommendations in a Control to get the points (or use "Quick Fix").
+    * **Quick Fix:** A button available for certain recommendations (usually configuration changes) that automatically applies the fix (e.g., "Secure transfer required" for Storage Accounts).
+* **Inventory:** Provides a view of security state across all resources (Azure, AWS, GCP, and on-prem connected via Azure Arc).
+
+### 3. Configure Threat Protection (CWP)
+This requires enabling paid plans (Defender plans).
+
+* **Just-in-Time (JIT) VM Access:**
+    * **Goal:** Reduces attack surface by closing management ports (RDP 3389, SSH 22) until valid access is requested.
+    * **Workflow:** User requests access -> Approval (optional) -> NSG rule creates a temporary "Allow" rule for the specific source IP -> Rule is removed after time window expires.
+    * **Requirement:** Requires **Defender for Servers Plan 2**.
+* **Adaptive Application Controls:**
+    * **Goal:**Prevents malware by defining a strict "Allow List" of applications that can run on a VM.
+    * **Mechanism:** Uses Machine Learning to analyze behavior and recommend legitimate apps to allow.
+* **File Integrity Monitoring (FIM):**
+    * **Goal:** Monitors Windows Registry and critical OS files for changes (a sign of compromise).
+    * **Requirement:** Requires the Azure Monitor Agent (AMA) or Log Analytics Agent.
+* **Defender for specific resources:**
+    * **Defender for SQL:** Scans for vulnerabilities (SQL Injection, unusual locations).
+    * **Defender for Storage:** Detects unusual uploads/downloads or potential malware hosting.
+    * **Defender for Key Vault:** Detects unusual access patterns or Tor exit node access.
+
+---
+
+## Microsoft Sentinel
+**Role:** Cloud-native **SIEM** (Security Information and Event Management) and **SOAR** (Security Orchestration, Automation, and Response).
+
+### 1. Data Connectors (Getting Data In)
+Sentinel is useless without data. You must configure **Data Connectors** first.
+* **Service-to-Service:** Connects Azure Activity, Entra ID (AAD), Defender for Cloud, Office 365. (Usually free ingestion).
+* **Syslog/CEF:** For Linux machines and network appliances (firewalls) using a log forwarder.
+* **Threat Intelligence:** Connects TAXII servers to import external threat indicators.
+
+### 2. Analytics Rules (Detecting Threats)
+Rules query the data to generate **Alerts** and **Incidents**.
+* **KQL (Kusto Query Language):** The language used to write rules.
+* **Rule Types:**
+    * **Microsoft Security (Incident creation):** Automatically creates Sentinel incidents from MDC or Entra Identity Protection alerts.
+    * **Fusion:** Uses ML to correlate low-fidelity signals into high-fidelity incidents (enabled by default).
+    * **Scheduled:** Standard custom query rules (e.g., "Detect 5 failed logins in 10 minutes").
+    * **NRT (Near Real-Time):** Runs every minute for fast detection.
+
+### 3. Automation (SOAR)
+Both MDC and Sentinel use **Azure Logic Apps** for automation, but the terminology differs slightly.
+
+| Feature | Context | Triggered By | Use Case |
+| :--- | :--- | :--- | :--- |
+| **Workflow Automation** | Defender for Cloud | **Alerts** or **Recommendations** | Auto-remediate a config issue (e.g., enable logs) or email the CISO when a high-severity alert fires. |
+| **Playbooks** | Microsoft Sentinel | **Incidents** or **Alerts** | Block an IP in Azure Firewall, reset a user's password in Entra ID, post a message to Teams. |
+
+* **Automation Rules (Sentinel):** Used to manage Playbooks. You create a rule (e.g., "If Incident Severity = High") to automatically run a Playbook.
+
+---
+
+## Exam "Gotchas" & Comparison
+
+* **MDC vs. Sentinel:**
+    * If the question asks about **Compliance**, **Secure Score**, or **Protecting Workloads** (Servers/SQL), the answer is **Defender for Cloud**.
+    * If the question asks about **Aggregating Logs** from multiple clouds/on-prem, **Correlating events**, **Hunting**, or **Investigating** a breach timeline, the answer is **Microsoft Sentinel**.
+* **Permissions:**
+    * To run a Playbook/Logic App, the Logic App must have a **Managed Identity** with permissions to perform the action (e.g., "User Access Administrator" to reset passwords).
+    * **Sentinel Responder** role: Can manage incidents (assign, close) but cannot query logs.
+    * **Sentinel Contributor** role: Can create analytics rules and automation.
+* **KQL Keyword:** Watch for `SecurityEvent` (Windows logs), `SigninLogs` (Entra ID), and `Heartbeat` (Agent health).
+
 ## References
 
 - [Azure subscriptions quota and service limits](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits?toc=%2Fazure%2Fvirtual-network%2Ftoc.json#networking-limits)
