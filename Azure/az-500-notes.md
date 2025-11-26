@@ -154,6 +154,8 @@ This option also lets you give people outside of your organization access to the
 
 - You can deploy an SQL managed instance to a dedicated virtual network subnet that does not have any resource connected. The subnet can have a service endpoint or can be delegated for a different service.
 
+- Azure DDoS Network Protection offers comprehensive DDoS protection for Azure resources, including those with Basic SKU public IPs. It includes the capabilities to protect against DDoS attacks, regardless of the public IP SKU, by applying the protection at the network level.
+
 **Azure Front Door**
 **Role:** Global Layer 7 Load Balancer & CDN. Scope: Global (Not deployed into a VNet; it sits at the "Edge" of Microsoft's network).
 
@@ -272,6 +274,8 @@ This requires enabling paid plans (Defender plans).
     * **Defender for SQL:** Scans for vulnerabilities (SQL Injection, unusual locations).
     * **Defender for Storage:** Detects unusual uploads/downloads or potential malware hosting.
     * **Defender for Key Vault:** Detects unusual access patterns or Tor exit node access.
+ 
+* Microsoft Defender for Cloud limits the count of alert notifications that is sent out. 4 high severity alerts are allowed while 2 medium and 1 low severity alerts respectively are allowed per day.
 
 ---
 
@@ -302,6 +306,7 @@ Both MDC and Sentinel use **Azure Logic Apps** for automation, but the terminolo
 | **Playbooks** | Microsoft Sentinel | **Incidents** or **Alerts** | Block an IP in Azure Firewall, reset a user's password in Entra ID, post a message to Teams. |
 
 * **Automation Rules (Sentinel):** Used to manage Playbooks. You create a rule (e.g., "If Incident Severity = High") to automatically run a Playbook.
+* **Notebooks:** You can use ML to run note books on Sentinel to automate processes
 
 ---
 
