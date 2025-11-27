@@ -217,6 +217,8 @@ This option also lets you give people outside of your organization access to the
     * *Note: If a Network rule allows traffic, Application rules are NOT processed.*
 * **Management:** Controlled via **Azure Firewall Policy** (preferred for exams) or Classic Rules.
 
+* **Deployment:** When deploying an Azure Firewall with the Firewall Management NIC enabled, the management interface must be placed in a dedicated subnet named AzureFirewallManagementSubnet. This subnet must follow a strict naming convention and meet Azure’s requirements. According to the latest Azure guidance, the minimum subnet size for 'AzureFirewallManagementSubnet' is /26,
+
 #### Exam Tips & "Gotchas"
 * **Scenario:** "You need to prevent internal VMs from accessing malicious websites and inspect the content of encrypted HTTPS traffic." -> **Answer:** Azure Firewall **Premium** (because of TLS Inspection).
 * **Scenario:** "You need to allow Windows Update traffic for all VMs." -> **Answer:** Use an **Application Rule** with the `WindowsUpdate` FQDN Tag.
@@ -307,6 +309,7 @@ Both MDC and Sentinel use **Azure Logic Apps** for automation, but the terminolo
 
 * **Automation Rules (Sentinel):** Used to manage Playbooks. You create a rule (e.g., "If Incident Severity = High") to automatically run a Playbook.
 * **Notebooks:** You can use ML to run note books on Sentinel to automate processes
+
 
 ---
 
