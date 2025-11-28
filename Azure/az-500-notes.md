@@ -150,6 +150,8 @@ This option also lets you give people outside of your organization access to the
 
 - Azure Arc-enabled Kubernetes is the only configuration that includes Kubernetes and can be deployed to AWS.
 
+- You can deploy an SQL managed instance to a dedicated virtual network subnet that does not have any resource connected. The subnet can have a service endpoint or can be delegated for a different service. You cannot deploy an SQL managed instance to a subnet with a connected virtual machine.
+
 - For App Service Only the Isolated pricing plan (tier) can be deployed to a virtual network subnet. With other pricing plans, inbound traffic is always routed to the public IP address of the web app, while web app outbound traffic can reach the endpoints on a virtual network.
 
 - You can deploy an SQL managed instance to a dedicated virtual network subnet that does not have any resource connected. The subnet can have a service endpoint or can be delegated for a different service.
