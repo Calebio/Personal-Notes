@@ -281,6 +281,8 @@ This requires enabling paid plans (Defender plans).
  
 * Microsoft Defender for Cloud limits the count of alert notifications that is sent out. 4 high severity alerts are allowed while 2 medium and 1 low severity alerts respectively are allowed per day.
 
+* The OWASP (Open Web Application Security Project) Top 10 dashboard within Defender EASM specifically focuses on the top ten most critical web application security risks. It provides insights and assessments related to common vulnerabilities that impact web applications. Utilizing this dashboard allows you to identify vulnerabilities in your inventory assets that align with these critical risks.
+
 ---
 
 ## Microsoft Sentinel
