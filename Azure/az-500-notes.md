@@ -176,7 +176,7 @@ This option also lets you give people outside of your organization access to the
 
 - **WAF Policy:** Global WAF policies can be associated with Front Door.
 
-**Azure Application Gateway**
+**Azure Application Gateway**<br/>
 **Role:** Regional Layer 7 (HTTP/HTTPS) Load Balancer & WAF. Scope: Regional (deployed into a Virtual Network subnet).
 
 **Key Features for AZ-500**
