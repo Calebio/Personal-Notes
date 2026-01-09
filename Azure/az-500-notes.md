@@ -142,6 +142,8 @@ This option also lets you give people outside of your organization access to the
 
 - Using certificate credentials for Microsoft Entra app registration ensures that the credentials are not transmitted during authentication, that they are stored securely, and that the credential usage follows the principle of least privilege.
 
+- If you have 2 NSG's sending traffic to a machine one from NIC and one from subnet. There is no scenario where NIC NSG “overrides” subnet NSG or vice versa. DENY always beats ALLOW. e.g if subnet NSG rule says DENY 80 and NIC NSG rule says allow 80, the traffic to 80 will be blocked because DENY rules are processed befor ALLOW.
+
 - To run workloads that are compliant with GDPR, custom initiatives should be to be created. GDPR compliance initiatives are not yet available in Azure.
 
 - Defender EASM requires at least one discovery group with a seed asset (such as a domain, ASN, or IP block) before it can begin external asset discovery.
