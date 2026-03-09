@@ -162,6 +162,8 @@ Virtual networks should align with enterprise segmentation strategy.
 
 High-risk workloads should be placed in isolated virtual networks.
 
+Virtual network peering works accross regions and accross subscriptions.
+
 ---
 
 ## Network Security Groups (NSG)
@@ -190,7 +192,7 @@ Traffic is blocked.
 
 ## User Defined Routes (UDR)
 
-Used to override Azure default routes.
+Used to override Azure default routes. Use case is e.g for all traffic to go through a firewall for it to inspect packets going in/out of a vm or network. To do this you need to use a route table to define how you want traffic to move.
 
 Limits:
 
