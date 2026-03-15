@@ -74,8 +74,58 @@ This option also lets you give people outside of your organization access to the
 VPNs
 --------------------
 - **Point-to-Site:** This is the concept of having a device connect to company resources through a private/tunnel connection over the internet. To setup this model you need VNET that has a private resource you're trying to access, a GatewaySubnet and a VPN Gateway with public ip inside the GatewaySubnet. To authenticate you will use certificates and then on the client computer you will download a VPN client.
-- **Site-to-Site:** This is the concept of securely connecting onsite data center to your cloud infrastructure privately over the internet. To set this model, you need VNET that has a private resource you're trying to access, a GatewaySubnet and a VPN Gateway with public ip inside the GatewaySubnet.
+- **Site-to-Site:** This is the concept of securely connecting onsite data center to your cloud infrastructure privately over the internet. To set this model, you need VNET that has a private resource you're trying to access, a GatewaySubnet and a VPN Gateway with public ip inside the GatewaySubnet.<br/>
+On the on-premise side, you need to have a VPN device that can route traffic via the Internet onto the VPN gateway in Azure. The VPN device can be a hardware device like a Cisco router or a software device ( e.g Windows Server 2016 running Routing and Remote services). The VPN device needs to have a publically routable IP address.<br/>
 
+The subnets in your on-premise network must not overlap with the subnets in your Azure virtual network
+
+The Site-to-Site VPN connection uses an IPSec tunnel to encrypt the traffic.
+
+The VPN gateway resource you create in Azure is used to route encrypted traffic between your on-premise data center and your Azure virtual network.
+
+- **Express Route:** Private connection from your on-prem to the cloud, this step involves an ISP and you also need to create an express route circut.
+
+--------------------------
+
+**Azure Virtual WAN:** Azure Virtual WAN is a managed global network backbone it's like Microsoft building a corporate network for you centralizes everything into one managed network service. It automatically handles:
+- VPN gateways
+- routing
+- branch connectivity
+- user VPN
+- VNet interconnectivity
+- global scaling
+So instead of deploying 10 different gateways, you attach everything to Virtual WAN hubs.
+
+Typical deployment steps:
+- Create Virtual WAN
+- Create Virtual Hub
+- Attach networks or VPN connections
+- Configure routing
+
+
+**Virtual Hub:** A Virtual Hub is the central router inside a virtual WAN, everything inside a virtual WAN connects to a virtual hub. Microsoft manages the virtual hub infrastructure automatically and Inside a Virtual Hub you can enable:
+- Site-to-site VPN
+- Point-to-site VPN
+- ExpressRoute
+- Azure Firewall
+- routing tables
+
+**What it takes to set it up**
+When creating a Virtual Hub, you must define:
+1. Region
+2. Hub ip address space
+3. Attach to a Virtual WAN if not already done
+Deployment steps:
+- Go to Virtual WAN
+- Create Virtual Hub
+- Choose region
+- Set address space
+- Enable VPN gateway if needed
+
+
+**Hub-Spoke:** Hub-Spoke is a network design pattern in Azure.
+Instead of every network connecting to every other network (which becomes chaos), you create one central VNet called the Hub and several spoke VNets.
+The hub acts as the central networking point while the spoke is the individual networks connected to the hub. The VNETs are connected by VNET peering and  All traffic typically flows through the hub.
 
 
 **Service Endpoint** gives access from subnets in a VNET to a range of multiple services e.g. A range of Storage Accounts. The downside of this option is, the resources from the subnet can access all the Storage accounts within this scope, which can increase blast radius in case of a security breach. The logic behind this is that the service endpoint creates a network card that links to the Storage service in the selected subnet and gives it a private ip within the subnet.
