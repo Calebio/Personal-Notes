@@ -128,7 +128,7 @@ Instead of every network connecting to every other network (which becomes chaos)
 The hub acts as the central networking point while the spoke is the individual networks connected to the hub. The VNETs are connected by VNET peering and  All traffic typically flows through the hub.
 
 
-**Service Endpoint** gives access from subnets in a VNET to a range of multiple services e.g. A range of Storage Accounts. The downside of this option is, the resources from the subnet can access all the Storage accounts within this scope, which can increase blast radius in case of a security breach. The logic behind this is that the service endpoint creates a network card that links to the Storage service in the selected subnet and gives it a private ip within the subnet.
+**Service Endpoint** gives access at subnets level in a VNET to a range of multiple services within the subnet e.g. A range of Storage Accounts. The downside of this option is, the resources from the subnet can access all the Storage accounts within this scope, which can increase blast radius in case of a security breach. The logic behind this is that the service endpoint creates a network card that links to the Storage service in the selected subnet and gives it a private ip within the subnet.
 
 
 **Private Endpoint** gives access from subnet of a VNET to a specific service e.g. One specific Storage Account and the specific storage type like blob or file share. This is more preferred from a security POV. The logic behind this is that the service endpoint creates a network card that links to the Storage service in the selected subnet and gives it a private ip within the subnet.
