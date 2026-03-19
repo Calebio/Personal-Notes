@@ -297,6 +297,15 @@ The hub acts as the central networking point while the spoke is the individual n
 | **TLS/SSL** | Termination & End-to-End | Termination (Edge) | **Inspection** (Forward Proxy - Premium) |
 
 
+
+## Azure Policy
+Helps govern resources. You can define rules that resources need to comply by. When an azure policy effect is set to audit, it does not enforce it just reports 
+
+## Azure Monitor Service
+This service allows you to collect data for your resources in Azure and on premises resources as well.
+  ### Log Analytics Workspace
+  This service is used for collection of log data. You are charged for the data ingested and data retention period. You have to create a data collection rule when collecting data from a service like VM, the that rule you can define where the data comes from, what kind of data you collect and where to deliver the log data 
+
 ## Microsoft Defender for Cloud (MDC)
 **Role:** Cloud Native Application Protection Platform (CNAPP). Focuses on **CSPM** (Posture Management) and **CWP** (Workload Protection).
 
