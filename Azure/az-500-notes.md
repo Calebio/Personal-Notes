@@ -385,6 +385,9 @@ Both MDC and Sentinel use **Azure Logic Apps** for automation, but the terminolo
 
 ---
 
+
+
+
 ## Exam "Gotchas" & Comparison
 
 * **MDC vs. Sentinel:**
