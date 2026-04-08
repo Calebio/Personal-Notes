@@ -20,7 +20,7 @@ A tool that lets you run Kubernetes locally on your computer. </br>
 - Runs everything with Multi-node capability.
 
 
-# Access Kubernetes API Server Using Service Account Token
+### Access Kubernetes API Server Using Service Account Token
 
 This sequence is used to **authenticate directly to the Kubernetes API server** using a **ServiceAccount token**, instead of using `kubectl`.
 
