@@ -29,12 +29,19 @@ This sequence is used to **authenticate directly to the Kubernetes API server** 
 ## Commands
 
 ```bash
+1. Get Kubernetes API Server Address
 export APISERVER=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
+
+2. Verify URL
 echo "$APISERVER"
 
+3. Generate Service Account Token
 export TOKEN=$(kubectl create token default)
+
+4. Verify Token Exists
 echo ${#TOKEN}
 
+5. Call Kubernetes API Directly
 curl "$APISERVER" --header "Authorization: Bearer $TOKEN" --insecure
 ```
 
