@@ -386,4 +386,92 @@ spec:
       containers:
       - name: fluentd
         image: quay.io/fluentd_elasticsearch/fluentd:v4.5.2
+```
+
+# Kubernetes Services — KCNA Notes
+
+## What is a Service
+
+A **Service** is a Kubernetes object used to **expose applications running in Pods** and enable **communication between applications**.
+
+Pods are **not directly accessible** because:
+
+- Pods are ephemeral (they can be recreated)
+- Pod IP addresses change
+- Containers do not expose ports automatically
+
+A **Service solves this problem** by providing:
+
+- Stable IP address
+- Stable DNS name
+- Load balancing across Pods
+
+---
+
+## Why Services are Needed
+
+Without Services:
+
+- Pods cannot be easily discovered
+- Pod IPs change frequently
+- No built-in load balancing
+
+With Services:
+
+- Applications can communicate reliably
+- Traffic is load balanced across Pods
+- Applications become discoverable
+
+---
+
+## How Services Work
+
+Services use:
+
+- kube-proxy
+- iptables / routing rules
+- Cluster DNS
+- Load balancing
+
+These components together expose Pods to:
+
+- Other Pods
+- Cluster network
+- External clients (optional)
+
+---
+
+## Service Benefits
+
+- Stable IP address
+- DNS-based service discovery
+- Load balancing
+- Decouples Pods from clients
+- Works with multiple replicas
+
+---
+
+## Example Use Case
+
+Multiple Pods running the same app:
+- Pod 1
+- Pod 2
+- Pod 3
+
+
+## Key Concept
+
+Pods change  
+Services stay stable
+
+---
+
+## KCNA Key Points
+
+- Services expose Pods
+- Provide stable IP and DNS
+- Enable service discovery
+- Load balance traffic across Pods
+- Work with multi-replica applications
+- Recommended way to expose applications
 
