@@ -486,8 +486,8 @@ Networking nodeport, clusterip maps to services
 
 Others include 
 
-· Pod, containers, smallest deployable unit, shared network namespace → Pod
-· Replicas, scaling, self-healing, desired state, template → ReplicaSet or Deployment (Deployment for rollouts)
+· Pod, containers, smallest deployable unit, shared network namespace → Pod. </br>
+· Replicas, scaling, self-healing, desired state, template → ReplicaSet or Deployment (Deployment for rollouts).
 · Rolling update, rollback, versioning, declarative updates, revision history → Deployment
 · Stable network identity, ordered startup, persistent storage per replica, headless service → StatefulSet
 · One pod per node, node monitoring, log collector, node agent → DaemonSet
