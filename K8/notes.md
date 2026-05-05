@@ -486,29 +486,29 @@ Networking nodeport, clusterip maps to services
 
 Others include 
 
-· Pod, containers, smallest deployable unit, shared network namespace → Pod. </br>
-· Replicas, scaling, self-healing, desired state, template → ReplicaSet or Deployment (Deployment for rollouts).
-· Rolling update, rollback, versioning, declarative updates, revision history → Deployment
-· Stable network identity, ordered startup, persistent storage per replica, headless service → StatefulSet
-· One pod per node, node monitoring, log collector, node agent → DaemonSet
-· Run to completion, batch processing, restart policy: OnFailure/ Never → Job
-· Scheduled tasks, cron syntax, recurring jobs → CronJob
-· Label, selector, filter, identify resources → Label & Selector
-· ConfigMap, environment variables, non‑sensitive, decouple config → ConfigMap
-· Base64, sensitive data, encryption, passwords/tokens → Secret
-· Persistent storage, PV, PVC, claim, volume binding, storage class → PersistentVolume & PersistentVolumeClaim
-· Isolation, firewall for pods, ingress/egress rules, network security → NetworkPolicy
-· Resource limits, CPU/memory quota, multi‑tenant cluster → ResourceQuota
-· Default requests/limits per container, namespace‑level defaults → LimitRange
-· Horizontal scaling, CPU utilization, custom metrics, HPA → HorizontalPodAutoscaler
-· Authentication, API access, pod identity, RBAC binding target → ServiceAccount
-· Virtual cluster, isolate teams, resource scope, naming separation → Namespace
-· CRD, extend API, custom resource, operator pattern → CustomResourceDefinition
-· Operator, automation, domain‑specific controller, custom logic → Operator
-· Worker machine, kubelet, kube-proxy, capacity → Node
-· Cluster state, key‑value store, distributed, consistency → etcd
-· API gateway, request routing, auth, validation → kube‑apiserver
-· Pod placement, node scoring, scheduling constraints → kube‑scheduler
-· Reconciliation loop, desired vs actual state, controller pattern → kube‑controller‑manager
+- Pod, containers, smallest deployable unit, shared network namespace → Pod. </br>
+- Replicas, scaling, self-healing, desired state, template → ReplicaSet or Deployment (Deployment for rollouts).
+- Rolling update, rollback, versioning, declarative updates, revision history → Deployment
+- Stable network identity, ordered startup, persistent storage per replica, headless service → StatefulSet
+- One pod per node, node monitoring, log collector, node agent → DaemonSet
+- Run to completion, batch processing, restart policy: OnFailure/ Never → Job
+- Scheduled tasks, cron syntax, recurring jobs → CronJob
+- Label, selector, filter, identify resources → Label & Selector
+- ConfigMap, environment variables, non‑sensitive, decouple config → ConfigMap
+- Base64, sensitive data, encryption, passwords/tokens → Secret
+- Persistent storage, PV, PVC, claim, volume binding, storage class → PersistentVolume & PersistentVolumeClaim
+- Isolation, firewall for pods, ingress/egress rules, network security → NetworkPolicy
+- Resource limits, CPU/memory quota, multi‑tenant cluster → ResourceQuota
+- Default requests/limits per container, namespace‑level defaults → LimitRange
+- Horizontal scaling, CPU utilization, custom metrics, HPA → HorizontalPodAutoscaler
+- Authentication, API access, pod identity, RBAC binding target → ServiceAccount
+- Virtual cluster, isolate teams, resource scope, naming separation → Namespace
+- CRD, extend API, custom resource, operator pattern → CustomResourceDefinition
+- Operator, automation, domain‑specific controller, custom logic → Operator
+- Worker machine, kubelet, kube-proxy, capacity → Node
+- Cluster state, key‑value store, distributed, consistency → etcd
+- API gateway, request routing, auth, validation → kube‑apiserver
+- Pod placement, node scoring, scheduling constraints → kube‑scheduler
+- Reconciliation loop, desired vs actual state, controller pattern → kube‑controller‑manager
 
 Use these keyword sets as mental triggers: when you encounter the keywords in a question, think of the associated Kubernetes concept.
