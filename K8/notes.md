@@ -474,7 +474,7 @@ Services stay stable
 - Load balance traffic across Pods
 - Work with multi-replica applications
 - Recommended way to expose applications
-
+- kube-proxy watches the API server for new Services and Endpoints. For ClusterIP Services, it configures network rules (e.g., iptables, IPVS) on each node to capture traffic destined for the Service's IP and load balance it to the backend Pods.
 
 Use keyword association system.  if you didn't do project base learning like most of us.. understand the concept and use keywords to identify answers 
 
