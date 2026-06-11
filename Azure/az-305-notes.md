@@ -369,6 +369,34 @@ Azure OpenAI and Azure Machine Learning **control planes are Critical-tier risk*
 - Treat standing privilege as something to actively hunt down and eliminate — especially leftover roles from migrations or one-off projects
 - Remember: **temporary is safer than permanent** — combine minimal active assignments with frequent reviews to balance resilience and security
 
+### Kerberos & Global Secure Access Client
+
+**Kerberos authentication — how it works:**
+- Users authenticate to the **Key Distribution Center (KDC)** → receive a **Ticket Granting Ticket (TGT)**
+- TGT is exchanged for a **Service Ticket** granting access to a specific resource (e.g., file share, on-prem app)
+- Traditional Kerberos requires **line-of-sight to a domain controller** — a problem for cloud or remote users
+
+**Entra Kerberos (Cloud Kerberos Trust):**
+- Allows cloud-only or hybrid users to get Kerberos tickets for **on-premises resources without a domain controller line-of-sight**
+- Enables SSO to on-prem Kerberos-protected apps and shares from Entra-joined devices
+- **Azure Files** also uses Kerberos for SMB authentication when joined to a domain
+
+**Global Secure Access Client — Microsoft's Security Service Edge (SSE):**
+
+| Component | What It Does |
+|---|---|
+| **Microsoft Entra Private Access** | Replaces traditional VPN — secures access to private/corporate resources; applies Conditional Access to all private traffic regardless of user location |
+| **Microsoft Entra Internet Access** | Secures access to SaaS apps and internet traffic through Microsoft's security fabric |
+| **Global Secure Access Client** | Agent installed on user devices (Windows); routes traffic through the SSE fabric; handles **Kerberos ticket acquisition** for on-prem resources without a VPN or DC line-of-sight |
+
+**Where Kerberos and Global Secure Access connect:**
+- The Global Secure Access Client acquires Kerberos tickets on behalf of the user through the service, enabling **SSO to Kerberos-protected on-prem resources** (file shares, internal apps) with no traditional VPN
+
+**Key Exam Triggers:**
+- "Replace VPN" + "apply Conditional Access to private resources" → **Microsoft Entra Private Access + Global Secure Access Client**
+- "SSO to on-prem resources without domain controller line-of-sight" → **Entra Kerberos / Cloud Kerberos Trust**
+- "Secure internet/SaaS traffic at the network level" → **Microsoft Entra Internet Access**
+
 ---
 
 ## 8. Azure Policy Effects
