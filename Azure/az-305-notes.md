@@ -449,6 +449,76 @@ Azure OpenAI and Azure Machine Learning **control planes are Critical-tier risk*
 
 ---
 
+## 8b. Cloud Adoption Framework (CAF)
+
+A structured Microsoft methodology for adopting Azure. AZ-305 tests it primarily around **governance design, landing zones, and infrastructure strategy**.
+
+### The Eight Phases
+
+| Phase | Focus |
+|---|---|
+| **Strategy** | Define business justification, motivations (migrate vs. innovate), expected outcomes |
+| **Plan** | Digital estate assessment, skills readiness plan, cloud adoption plan |
+| **Ready** | Prepare the environment — this is where **Landing Zones** are designed and deployed |
+| **Adopt** | Two tracks: **Migrate** (lift-and-shift) or **Innovate** (cloud-native new capabilities) |
+| **Govern** | Apply governance disciplines across the environment |
+| **Manage** | Operations management — business commitments, operations baseline, expand as needed |
+| **Secure** | Security integrated across the full adoption lifecycle |
+| **Organize** | Align teams and functions to cloud responsibilities |
+
+### Five Governance Disciplines
+
+| Discipline | What It Governs |
+|---|---|
+| Cost Management | Control and optimize cloud spend |
+| Security Baseline | Align environment with security requirements |
+| Identity Baseline | Identity and access management standards |
+| Resource Consistency | Resource organization, tagging, and naming |
+| Deployment Acceleration | Standardize and automate deployments |
+
+### Landing Zones (most tested for AZ-305)
+A **Landing Zone** is a pre-configured Azure environment following CAF best practices — established *before* workloads are deployed so governance, networking, and security are ready from day one.
+
+**Built around:**
+- **Management Groups hierarchy** → **Subscriptions** → **Azure Policy** → **RBAC** → **Networking**
+
+**Subscription archetypes:**
+
+| Type | Purpose |
+|---|---|
+| Platform | Shared services — connectivity, identity, management |
+| Landing Zones | Workload subscriptions for applications/teams |
+| Sandboxes | Isolated dev/test environments with relaxed policy |
+| Decommissioned | Retired subscriptions staged for removal |
+
+**Two landing zone approaches:**
+
+| Approach | When to Use |
+|---|---|
+| Start small and expand | Smaller orgs or pilots — build incrementally |
+| Enterprise-scale (Azure Landing Zone) | Large orgs needing full governance and compliance from day one |
+
+### Key Exam Triggers
+
+| Trigger | Answer |
+|---|---|
+| "Establish governance at scale before workloads deploy" | Landing Zone (CAF Ready phase) |
+| "Standardize resource deployment across teams" | Deployment Acceleration discipline |
+| "Migrate existing workloads with minimal change" | CAF Migrate track |
+| "Build new cloud-native capabilities" | CAF Innovate track |
+| "Organize subscriptions and policies at scale" | Management Group hierarchy (CAF Ready phase) |
+| "Shared services — networking, identity, management" | Platform subscription archetype |
+| "Isolated dev environment with relaxed controls" | Sandbox subscription |
+
+### Design Best Practices — CAF
+- **Land before you lift** — design the landing zone (management groups, policy, RBAC, networking) before migrating any workloads
+- **Apply governance disciplines in order of risk** — start with Identity Baseline and Security Baseline; add Cost Management and Resource Consistency early
+- **Choose Enterprise-scale** when your org needs consistent compliance across many teams and subscriptions from day one; choose Start Small when you're piloting or iterating
+- **Management Groups enable policy inheritance at scale** — assign Azure Policy and RBAC at the management group level so every child subscription inherits the controls automatically
+- **Treat the landing zone as a living design** — expand it as requirements grow rather than rebuilding from scratch
+
+---
+
 ## 9. Key Vault Patterns
 
 | Scenario | Pattern |
