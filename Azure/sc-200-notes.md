@@ -561,8 +561,12 @@ Retention has **two components**: **Analytics retention** (data queryable in nea
 - Changing the table-level retention for one table (via **Tables → [table] → Manage table**) only affects that table — tables still inheriting the workspace default are unaffected, and previously-customized tables aren't reset when you later change the workspace-wide default.
 - When you **shorten** a table's total retention, Azure Monitor waits **30 days before actually deleting** the data — giving you a window to revert a misconfiguration before data loss.
 - Configuring retention requires the **Log Analytics Contributor** role (to set it) or **Log Analytics Reader** (to just view current settings).
+- The **first 90 days** of analytics-tier retention on a Sentinel-enabled workspace are **free** — billing only kicks in once total retention is configured beyond 90 days (or once data ages past the analytics tier and needs to be pulled back via search jobs/restore).
 
-*Verified against: [Onboard to Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/quickstart-onboard) and [Manage data retention in a Log Analytics workspace](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/data-retention-configure) (Microsoft Learn).*
+### Options for retention or access beyond the workspace maximums
+If you need data available longer than the 2-year analytics maximum or the 12-year archive maximum, or need it outside the workspace entirely (offline investigation, external SIEM, long-term compliance storage), the current supported paths are: **Log Analytics data export rules**, which continuously stream selected tables to an **Azure Storage account** (cheap long-term archiving with lifecycle policies) or **Azure Event Hubs** (streaming to an external system); exporting into **Azure Data Explorer** (directly via Event Hubs, or by staging through Blob Storage first) for KQL-based querying outside the workspace; and on-demand PowerShell extraction via the official **`Invoke-AzOperationalInsightsQuery`** cmdlet for scripted/ad-hoc pulls. Note that the older community script `Invoke-AzOperationalInsightsQueryExport` and "Continuous Export" (a Defender for Cloud alerts/recommendations feature, not a Log Analytics retention mechanism) are not the current recommended tools for this — use the data export rules and official cmdlet above instead.
+
+*Verified against: [Onboard to Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/quickstart-onboard), [Manage data retention in a Log Analytics workspace](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/data-retention-configure), [Log Analytics workspace data export in Azure Monitor](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/logs-data-export), and [Log retention tiers in Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/log-plans) (Microsoft Learn).*
 
 ## Configure Microsoft Sentinel Roles
 
@@ -590,10 +594,18 @@ Retention has **two components**: **Analytics retention** (data queryable in nea
 - Microsoft recommends assigning these roles at the **resource group level** containing the Sentinel workspace, specifically because it also covers related resources like **Logic Apps/playbooks** automatically. If you instead assign roles directly at the **workspace** level, you must separately assign the same roles to the **SecurityInsights** solution resource within that workspace (and potentially other resources) — meaningfully more overhead than the resource-group approach.
 - The ability to **create/edit workbooks** specifically also requires the separate **Workbook Contributor** role alongside Sentinel Contributor (or a lesser Sentinel role) — it's not purely bundled into Sentinel Contributor.
 - For **guest users** to be able to assign incidents, they need **Directory Reader** (a Microsoft Entra ID role — regular non-guest users get this by default) **in addition to** Sentinel Responder.
+- To **add data connectors**, a user needs **write permissions on the Sentinel workspace** (covered by Contributor or higher) — some connectors also require additional, connector-specific permissions listed on that connector's own page, so check there before assuming workspace write access alone is enough.
 - To let Sentinel actually **run playbooks via automation rules**, its special service account needs **explicit permissions granted on the playbook's resource group** — and *your own* account needs **Owner** permissions to grant that. This is the real mechanism behind what the Automation Contributor role enables.
 - 🚨 If your workspace has been onboarded to the **Defender portal** and uses the newer **Microsoft Sentinel data lake** capability, a parallel and different RBAC model applies: read/write access there is governed by **Microsoft Entra ID roles** (Global Reader, Security Reader, Security Operator, Security Administrator, Global Administrator) rather than the classic Azure RBAC Sentinel roles described above. Given the ongoing move of Sentinel into the Defender portal, this parallel model is increasingly relevant.
+- You can sanity-check any user's actual effective permissions via **Access control (IAM) → View my access** (or "Check access" for another user) on the resource group/workspace — a screenshot of this view is a plausible exam-question format ("given this role assignment, can this user do X?").
+- Microsoft publishes a dedicated **security baseline for Microsoft Sentinel** (part of the Microsoft cloud security benchmark), covering recommended controls across areas like privileged access, data protection, and logging/monitoring — available as a Learn article and as a downloadable spreadsheet.
 
-*Verified against: [Roles and permissions in the Microsoft Sentinel platform](https://learn.microsoft.com/en-us/azure/sentinel/roles) (Microsoft Learn).*
+**Setup steps — set/verify workspace retention in the portal:**
+1. Open the Sentinel workspace → **Settings** (bottom of the left nav) → **Workspace settings**.
+2. On the workspace's own left nav, select **Usage and estimated costs**.
+3. Use the retention slider here to view/change the workspace-default analytics retention (default 90 days free, up to 2 years).
+
+*Verified against: [Roles and permissions in the Microsoft Sentinel platform](https://learn.microsoft.com/en-us/azure/sentinel/roles) and [Azure security baseline for Microsoft Sentinel](https://learn.microsoft.com/en-us/security/benchmark/azure/baselines/microsoft-sentinel-security-baseline) (Microsoft Learn).*
 
 ## Manage Multiple Workspaces with Workspace Manager
 
@@ -657,6 +669,185 @@ Data connectors live in the **Content Hub**, are filterable by content type, sho
 - Once ingested, Syslog messages land in the **`Syslog`** table and CEF messages land in the **`CommonSecurityLog`** table.
 
 *Verified against: [Syslog and CEF AMA connectors for Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/cef-syslog-ama-overview) (Microsoft Learn).*
+
+### Windows Security Events collection
+Like Syslog/CEF, Windows event collection is now done through the **"Windows Security Events via AMA"** connector — there's no longer a separate "download the Log Analytics/OMS agent, register it with a workspace ID and key" workflow; that whole approach belonged to the retired legacy agent (MMA). Requirements: **read/write permissions** on the Sentinel workspace, and for any non-Azure machine (physical, on-prem VM, or a VM in another cloud like AWS/GCP), the machine must have **Azure Arc** installed and enabled *before* the AMA-based connector can be applied to it — Azure Arc is the specific answer if a scenario asks what's needed to monitor non-Azure machines.
+
+**Setup steps — collect Windows Security Events via AMA:**
+1. In Sentinel, go to **Data connectors** → find and install **Windows Security Events via AMA** → refresh the page → open the connector again to finish configuring it.
+2. Under **Configuration**, select **+ Add data collection rule** → name the rule, choose subscription/resource group.
+3. On the **Resources** tab, add the target machine(s) (Azure VMs or Arc-enabled non-Azure machines).
+4. On the **Collect** tab, choose which events to ingest: **All events**, one of two pre-built sets (**Common** or **Minimal**), or **Custom** (with XPath query filtering) — the more events collected, the more storage/cost consumed.
+
+*Verified against: [Windows security event sets that can be sent to Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/windows-security-event-id-reference) (Microsoft Learn).*
+
+## Configure Custom Threat Intelligence Connectors
+
+🚨 The older **Threat Intelligence Platform (TIP) data connector** — the classic "register an Entra app with the `ThreatIndicators.ReadWrite.OwnedBy` API permission" workflow — was **deprecated and stopped collecting data as of June 2026**. The current supported method is the **Threat Intelligence upload API (Preview)**, which uses **STIX-formatted objects** and doesn't require installing a data connector at all.
+
+Requirements: **read/write** permissions on the Sentinel workspace; ability to register a Microsoft Entra application (needs the Application Administrator, Application Developer, or Cloud Application Administrator role if self-service app registration is disabled tenant-wide); and the Entra application must be assigned the **Microsoft Sentinel Contributor** role (or equivalent) **at the workspace level** — note this replaces the old model's tenant-wide Global Administrator/Security Administrator requirement with a narrower, workspace-scoped role.
+
+**Setup steps — connect a TIP or custom feed via the upload API:**
+1. Register a Microsoft Entra application and record its **Application (client) ID**.
+2. Generate a **client secret** for the application.
+3. In the Sentinel workspace (or the underlying Log Analytics workspace) → **Access control (IAM)** → **Add role assignment** → assign **Microsoft Sentinel Contributor** to the application (search by name — apps aren't shown by default).
+4. In your TIP or custom solution, configure the **application ID**, a **Microsoft Entra OAuth 2.0 access token**, and the **Sentinel workspace ID**, then submit indicators to the upload API.
+5. Within a few minutes, incoming STIX objects appear on Sentinel's **Threat intelligence** page.
+
+*Verified against: [Connect your threat intelligence platform to Microsoft Sentinel with the upload API (Preview)](https://learn.microsoft.com/en-us/azure/sentinel/connect-threat-intelligence-upload-api) (Microsoft Learn).*
+
+## Create Custom Logs to Store Custom Data
+
+🚨 The workflow shown for this topic — installing the legacy Log Analytics/OMS agent, onboarding via `omsadmin.sh` on Linux or the "Microsoft Monitoring Agent" Control Panel applet on Windows, and pointing that agent at a text-file path to create a **Custom Logs (classic)** table — is the **retired MMA-based method** (same MMA retirement, August 31, 2024, noted earlier in these notes for Syslog/CEF). It still works to explain *why* the `_CL` suffix and custom-table concepts exist, but it's no longer how you'd build this today.
+
+The current supported method is to create a **custom table** in the Log Analytics workspace (**Tables → Create → New custom log (DCR-based)**), which ingests via a **Data Collection Rule (DCR)** and the **Logs Ingestion API** rather than the legacy Data Collector API or an installed agent watching a file path. You upload a sample of your log data, Azure Monitor infers/lets you adjust the schema, and it generates the backing DCR (including any parsing/transformation logic) for you.
+
+Facts that carry over unchanged from the classic model:
+- Source files must have **one log entry per line**, must **not** use circular logging/log rotation, and must be encoded in **ASCII or UTF-8**.
+- **Time zone conversion is not supported for Linux** custom log sources.
+- Workspace limits: a maximum of **500 custom tables** per workspace, **500 columns** per table. Columns beyond the 500-column limit aren't rejected outright — they get folded into a dynamic `AdditionalFields` property-bag column instead of being dropped.
+- Tables created this way are automatically suffixed with **`_CL`** (e.g., `DISM_CL`), matching what you'd see in the workspace's **Custom logs** listing.
+
+*Verified against: [Migrate from the HTTP Data Collector API to the Logs Ingestion API](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/custom-logs-migrate), [Add or delete tables and columns in Azure Monitor Logs](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/create-custom-table), and [Prepare for retirement of the Log Analytics agent](https://learn.microsoft.com/en-us/azure/defender-for-cloud/prepare-deprecation-log-analytics-mma-agent) (Microsoft Learn).*
+
+## Design and Configure Analytics Rules
+
+Analytics rules search connected data for specific events or event patterns, fire alerts once a defined threshold/condition is met, and — depending on configuration — turn those alerts into incidents for the SOC to triage, optionally kicking off an automated response at the same time.
+
+### Rule types
+Sentinel actually has **seven** analytics rule types, not just the two or three commonly demoed: **Scheduled** (your own KQL query on a fixed interval — the type built in this walkthrough), **Near-real-time (NRT)** (built-in, curated queries that run about once a minute for fast-turnaround detections), **Fusion** (Microsoft's correlation engine, stitching together multiple low-fidelity alerts/events across products into one high-fidelity multistage-attack incident), **Microsoft security** (auto-creates incidents directly from alerts already raised by connected Microsoft security products, like Defender for Cloud or Defender for Identity), **ML Behavior Analytics** (Microsoft-managed machine learning models, not customizable — e.g., flagging anomalous SSH/RDP logins by IP, geolocation, and user history), **Threat Intelligence** (matches ingested logs against Microsoft's threat indicator feeds), and **Anomaly (UEBA)**.
+
+### Building a scheduled rule
+- **General tab**: name, description, severity (Informational/Low/Medium/High), and the relevant **MITRE ATT&CK** tactics/techniques.
+- **Set rule logic**: paste in your tested KQL query (must return a `TimeGenerated` column, since that's what scheduled rules use for the lookback window); optionally map up to 10 recognized entity types and surface custom details in the resulting alerts.
+- **Query scheduling**: **Run query every** (5 minutes–14 days) and **Lookup data from the last** (5 minutes–14 days, must be ≥ the run interval) are both independently configurable — there's no separate, shorter cap on the lookback period; it shares the same 5-minute-to-14-day range as the run interval.
+- **Ingestion delay**: to account for the gap between an event happening at the source and it actually landing in the workspace, Sentinel runs scheduled rules on an automatic **5-minute delay** from their scheduled time. Since different data sources have different ingestion latency, if a rule seems to be missing events, the fix is usually to **widen the lookback period** to comfortably exceed that source's typical ingestion delay (you can measure actual delay with the KQL `ingestion_time()` function compared against `TimeGenerated`).
+- **Alert threshold**: fire an alert only when the query returns more than N results (0 = always alert if there are any results).
+- **Event grouping**: either **group all events into a single alert** (default — one alert per run, summarizing everything the query returned) or **trigger an alert for each event** (one alert per returned row/event — useful for per-user or per-host granularity).
+- **Suppression**: **Stop running query after alert is generated** can be turned on, pausing the rule for up to **24 hours** after it fires.
+
+### Incident settings and alert grouping
+**Create incidents from alerts triggered by this analytics rule** is enabled by default — each alert becomes its own incident unless you turn on **alert grouping**, which merges related alerts (matching on entities, and/or details) into a single incident. A single grouped incident can hold **up to 150 alerts**; if a rule generates more than 150 matching alerts, Sentinel spins up an additional incident with the same details to hold the overflow. (If Sentinel is onboarded to the Defender portal, incident creation is handled by Defender XDR's own correlation engine instead, and these grouping settings are treated only as initial guidance rather than a strict rule.)
+
+### Automated response
+🚨 The **classic "Alert automation" method** — attaching a playbook directly to an analytics rule so it fires whenever that specific rule generates an alert — stopped accepting new playbook assignments back in June 2023 and is **fully deprecated as of March 2026**. Any playbooks still listed there keep running only until you migrate them off. The current supported approach is **automation rules**: build an automation rule with an **"alert created"** (or "incident created") trigger and have *it* invoke the playbook, rather than wiring the playbook to the analytics rule directly.
+
+### Rule templates
+Content Hub solutions ship pre-built **rule templates** (filterable by data source/vendor, e.g., Microsoft Defender for Endpoint) that you clone and customize rather than write from scratch. Templates built around a specific Microsoft security product often use a simplified "Microsoft security rule" condition instead of a raw KQL query, since the underlying product has already done the detection work.
+
+*Verified against: [Create scheduled analytics rules in Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/create-analytics-rules) and [Threat detection in Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/threat-detection) (Microsoft Learn).*
+
+## Investigate Incidents in Microsoft Sentinel
+
+An incident is one or more related alerts grouped together (per the grouping logic set on the analytics rule that generated them) into something actually worth a SOC analyst's attention. The **Incidents** page shows counts by status — **New**, **Active** (renamed from the older "In progress" language, still meaning someone's working it), and **Closed** — and each incident carries its own severity, status, and owner, independent of the analytics rule that created it. You can filter by severity, status, product name, or owner.
+
+Selecting an incident's **Actions** button gives you **Investigate** (opens the investigation graph — an interactive map of the incident's entities, like the affected hosts, connecting outward to related alerts/evidence), **Create automation rule**, and **Create team** (spins up a Microsoft Teams team scoped to that incident for collaboration).
+
+### Automating incident work via PowerShell
+The official, GA **`Az.SecurityInsights`** PowerShell module lets you script incident handling — retrieving incidents (**`Get-AzSentinelIncident`**, requires at minimum `-ResourceGroupName` and `-WorkspaceName`, returns *all* incidents in that workspace unless piped through `Where-Object` to filter by title/number/etc.), creating them (**`New-AzSentinelIncident`**, same required parameters plus a `-Title`), reassigning owners, changing severity, adding comments — as well as creating/configuring analytics rules, data connectors, and bookmarks. Run `Get-Command -Module Az.SecurityInsights` to see the full current list of cmdlets in your installed module version — this is a real, current, actively-growing capability (not something to dismiss as unlikely to appear), so expect exam questions that show a partially-filled-in cmdlet and ask you to pick the correct parameter to complete it, rather than asking you to write a script from scratch.
+
+### Portal note
+Both the Sentinel **Overview** dashboard and the **Incidents** page default to showing only the **last 24 hours** of activity — a low/zero incident count on first glance often just means the time-range filter needs widening (e.g., to 30 days), not that nothing has happened.
+
+### Viewing incidents across multiple workspaces and tenants
+Sentinel's **multiple workspace view** lets you see incidents from several workspaces — including workspaces in other Microsoft Entra tenants — in one unified list, filterable by workspace/tenant in addition to the normal incident filters. Requirements and limits: **read and write permissions on every workspace you select** (selecting a workspace where you only have read access shows a warning, and blocks you from modifying *any* incident in that combined selection, not just the read-only one); and a current maximum of **100 concurrently displayed workspaces** (this cap has been raised over time — don't be surprised if older material cites a lower number). This combined view is scoped to **incidents only** — for anything else (analytics rules, hunting, workbooks, etc.), you still have to switch into each workspace individually.
+
+*Verified against: [Investigate incidents with Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/investigate-incidents), [Work with Microsoft Sentinel incidents in many workspaces at once](https://learn.microsoft.com/en-us/azure/sentinel/multiple-workspace-view), and [Az.SecurityInsights module reference](https://learn.microsoft.com/en-us/powershell/module/az.securityinsights/) (Microsoft Learn).*
+
+## Manage Microsoft Sentinel Workbooks
+
+Workbooks are Sentinel's visualization/reporting layer — dashboards built from one or more saved KQL queries, plus markdown text blocks for context. Sentinel ships a large, constantly-growing gallery of built-in **workbook templates** from both Microsoft and third-party vendors (security appliance vendors, etc.) — the exact count changes release to release, so don't memorize a specific number for the exam.
+
+The key workflow detail: opening a **template** directly runs it read-only against your data — you can look, but any edits you make won't persist. To actually keep changes, you must **Save** the template first (choosing a region/subscription), which creates your own copy of it under the **My workbooks** tab; only workbooks living under My workbooks retain edits between sessions. From there, **Edit** lets you modify the markdown text, add/remove/replace the underlying queries (including swapping in the built-in **sample queries** like Counts by table name, Heartbeat, or Alerting resources), and **Done Editing** commits the changes — the next time you open that saved workbook, your customizations (and any saved parameter values, like a pre-filled subscription) are still there.
+
+**Setup steps — activate and customize a workbook template:**
+1. Sentinel → **Workbooks** → find the template in the gallery (filter/search by name, e.g., "AMA migration tracker") → open it to preview.
+2. Select **Save** → choose the subscription/region to save it to. This creates a copy under **My workbooks**.
+3. Open the saved copy from **My workbooks** → **Edit** to customize the banner text, queries, or visualizations → **Done Editing** to save.
+4. Any workbook-level parameters left blank in the template (e.g., subscription selector) can be filled in and saved so they persist on future opens.
+
+*Verified against: [Create workbooks for Microsoft Sentinel solutions](https://learn.microsoft.com/en-us/azure/sentinel/sentinel-workbook-creation) and [Visualize your data using workbooks in Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/monitor-your-data) (Microsoft Learn).*
+
+## Identify Advanced Threats with User and Entity Behavior Analytics (UEBA)
+
+UEBA builds baseline behavioral profiles for entities — users, hosts, IP addresses, applications — from connected data sources, then uses machine learning to flag activity that deviates from that baseline. For any flagged/compromised entity, Sentinel also estimates its **blast radius**: the sensitivity and reach of what else could be affected if that specific asset is compromised, which helps prioritize investigation and response toward the assets that matter most rather than treating every anomaly equally.
+
+To enable it: **Entity behavior** (in Sentinel's navigation) → **Configure UEBA** → toggle **Turn on UEBA feature** → choose which directory service(s) to synchronize user entities from (e.g., Microsoft Entra ID, on-premises Active Directory via Defender for Identity).
+
+Required permissions to enable/disable UEBA: the **Security Administrator** role in Microsoft Entra ID (not Global Administrator — that's more privilege than's actually required), plus one of the following Azure roles at the resource-group level or higher: **Owner**, **Contributor**, or, as the least-privileged combination, **Microsoft Sentinel Contributor** (workspace level) together with **Log Analytics Contributor** (resource-group level).
+
+*Verified against: [Enable entity behavior analytics to detect advanced threats](https://learn.microsoft.com/en-us/azure/sentinel/enable-entity-behavior-analytics) and [Advanced threat detection with User and Entity Behavior Analytics (UEBA) in Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/identify-threats-with-entity-behavior-analytics) (Microsoft Learn).*
+
+## Perform Advanced Hunting with Notebooks
+
+Notebooks extend hunting beyond what workbooks and the Advanced Hunting query editor offer natively: while workbooks visualize and analytics rules alert on data already inside Sentinel, notebooks (Jupyter, running Python) let you write arbitrary code against that same underlying data store, build fully custom analysis/visualizations, and — the real differentiator — pull in and correlate **external, non-Azure data sources** in the same investigation (e.g., checking a suspicious domain or file hash against VirusTotal or another external threat intel service alongside your own log data).
+
+The core toolset is **MSTICPy** (from **MSTIC**, the Microsoft Threat Intelligence Center) — a Python library purpose-built for cybersecurity investigation: data retrieval, enrichment, analysis, and visualization, with its own configuration file (`msticpyconfig.yaml`) that gets auto-populated with your workspace details when you launch a notebook from Sentinel.
+
+### Requirements
+Running Sentinel notebooks requires an **Azure Machine Learning workspace** in addition to your Sentinel workspace, which in turn needs its own supporting resources (a storage account, key vault, and Application Insights instance — existing ones can be reused). Permissions span two separate role sets:
+- **Sentinel side**: **Reader**, **Responder**, or **Contributor** (the same built-in Sentinel roles covered earlier — no separate notebook-specific role exists) — at minimum you need **Log Analytics Reader** to actually read data from a notebook.
+- **Azure Machine Learning side**: the AML workspace's own default built-in roles — **AzureML Data Scientist**, **Reader**, **Contributor**, and **Owner** — assigned to whoever needs to open/run notebooks in that workspace.
+
+**Setup steps — set up and open a Sentinel notebook:**
+1. In Sentinel, go to the notebook template/gallery and select a starting notebook (e.g., the built-in "Getting Started Guide" notebook).
+2. If you don't already have one, create an **Azure Machine Learning workspace** — providing/creating a storage account, key vault, Application Insights, choosing a networking option (public endpoint is the simpler, Microsoft-recommended default; private endpoint is available for tighter network isolation), and an identity type (system- or user-assigned) plus credential/identity-based storage access and Microsoft- or customer-managed key encryption on the advanced settings tab.
+3. In the AML workspace (Azure Machine Learning Studio), create a **compute instance** to actually run the notebook — watch the VM size/SKU chosen here, since it directly drives compute cost; scale it down if you're just experimenting.
+4. Open the notebook — it's structured as a sequence of **cells** (Python code or markdown), run individually or all at once — and the first cells typically launch **`MpConfigEdit`**, a configuration tool for wiring up your workspace and any external data source API keys used by MSTICPy.
+
+*Verified against: [Get started with Jupyter notebooks and MSTICPy in Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/notebook-get-started) and [Jupyter notebooks with Microsoft Sentinel hunting capabilities](https://learn.microsoft.com/en-us/azure/sentinel/notebooks) (Microsoft Learn).*
+
+## Create Custom Hunting Queries
+
+The **Hunting** page (under Threat management) ships with a large, regularly-growing library of built-in queries alongside anything you've added yourself — the exact count varies by release/solution installs, so don't memorize a specific number for the exam. Selecting any query opens a details pane showing its query logic, with the ability to run it and view results directly, or modify it on the fly.
+
+All hunting queries use the same **KQL** you'd use in analytics rules — there's no separate hunting-specific query language. Creating a new one (**New query** on the Hunting page) asks for a name, the KQL itself, and optionally which **MITRE ATT&CK** tactics/techniques it maps to; you can also define **entity mappings** (selecting entity types, identifiers, and matching columns) so results integrate cleanly with the rest of Sentinel's entity-based tooling. You can test-run the query during creation to see live results and refine it before saving.
+
+### Promoting a hunting query to an analytics rule
+A hunting query that consistently surfaces meaningful (if not necessarily severe) results is a good candidate to convert into a full **analytics rule** — turning ad-hoc manual hunting into automated, ongoing alerting and incident creation. From the query's results, use **New alert rule → Create Microsoft Sentinel alert** (or the equivalent "create analytics rule" action on the query itself, depending on where you launch it from) to open the same **Analytics rule wizard** covered earlier, pre-populated with the hunting query's logic so you just need to fill in the remaining scheduling/incident/response settings.
+
+*Verified against: [Hunting capabilities in Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/hunting) and [Create custom hunting queries in Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/hunts-custom-queries) (Microsoft Learn).*
+
+## Use Hunting Bookmarks for Data Investigations
+
+A **bookmark** preserves a specific hunting query, its result set, and your own annotations, so you (or teammates) can come back to it later without re-running or re-discovering the query — useful for findings that are worth flagging and discussing but aren't urgent enough to escalate immediately. Select one or more rows in a query's results, then use the bookmark action to open the **Add bookmark** pane, where you can rename it, add entity mappings, tag MITRE tactics/techniques, apply free-text tags, and — the most valuable field — write **notes** capturing your reasoning for the team.
+
+When a bookmarked finding later turns out to be serious enough to act on, you escalate it directly to an incident: select the bookmark(s) → **Incident actions** → either **Create new incident** (optionally editing the incident's details first) or **Add to existing incident**.
+
+### Managing bookmarks via PowerShell
+Following the same `Az.SecurityInsights` module pattern used for incidents, bookmark management has its own small set of cmdlets: **`Get-AzSentinelBookmark`**, **`New-AzSentinelBookmark`**, **`Update-AzSentinelBookmark`**, and **`Remove-AzSentinelBookmark`** — each requiring at minimum `-ResourceGroupName` and `-WorkspaceName`, consistent with the other Sentinel cmdlets covered earlier. As with those, expect exam questions to test recognizing which parameter/cmdlet completes a partially-given command rather than writing one from scratch.
+
+*Verified against: [Hunt with bookmarks in Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/bookmarks) (Microsoft Learn).*
+
+### Livestream (deprecated)
+🚨 **Livestream** — the "Add to livestream" feature that ran a hunting query on a ~30-second refresh and surfaced portal notifications as new matches came in — is **deprecated, with the feature having stopped being available from mid-March 2026**. If you see it demoed, treat it as historical: the current recommended replacements for "notify me as this query keeps matching" are **KQL jobs**, **analytics rules**, or **playbooks**, which persist results and support a wider range of notification/messaging integrations than livestream ever did.
+
+*Verified against: [Detect threats by using hunting livestream in Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/livestream) (Microsoft Learn).*
+
+## Create Microsoft Sentinel Playbooks
+
+**SOAR** (Security Orchestration, Automation, and Response) is the piece of Sentinel that takes recurring response/remediation work off the SOC's plate. A **playbook** is a set of automated steps — built as an **Azure Logic Apps** workflow — that runs in response to a Sentinel alert or incident (or manually, on demand), doing things like posting to a Teams/Slack channel, creating a ticket in a service like ServiceNow, or modifying the incident itself. Because playbooks are billed as Logic Apps runs, using them can add to your Azure spend beyond Sentinel's own cost.
+
+### Connectors and triggers
+Logic Apps connectors come in three flavors: **managed connectors** (pre-built actions/triggers wrapping a product/service's API — both Microsoft and third-party, e.g., ServiceNow), **custom connectors** (build your own triggers/actions when no managed connector fits), and the **Microsoft Sentinel connector** specifically, which lets a playbook read and modify Sentinel incidents/alerts directly. A **trigger** (the starting block of a playbook, not itself a connector) defines what the playbook expects as input; the Sentinel connector currently offers two: an **alert trigger** (playbook receives the triggering alert) and an **incident trigger** (playbook receives the incident, including all its included alerts and entities). Everything after the trigger is made up of **actions** — the actual steps taken.
+
+### Permissions
+Playbook-related permissions span both Logic Apps' own Azure roles and Sentinel's roles:
+- **Logic App Contributor**: manage/edit logic apps and run playbooks, but can't change who else has access to them (that needs **Owner**).
+- **Logic App Operator**: read, enable, and disable logic apps, but can't edit/update their contents.
+- **Microsoft Sentinel Contributor**: can attach a playbook to an analytics rule.
+- **Microsoft Sentinel Playbook Operator**: the role that actually lets someone **run a playbook manually** against an incident (via the incident's **Run Playbook** action) — this is a separate, narrower role from Sentinel Responder; Responder gives you general incident view/edit access but running a playbook specifically still requires Playbook Operator on the resource group containing that playbook.
+- **Microsoft Sentinel Automation Contributor**: exists solely so Sentinel's own service account can invoke playbooks from automation rules — not intended for user accounts (matches what's already noted under Sentinel roles).
+
+### Building a playbook
+In Sentinel, **Automation** (under Configuration) → **Create** → opens the **Logic App designer**. A typical simple example: start blank, add the Sentinel connector's **"When a response to a Sentinel alert is triggered"** (or incident-triggered equivalent) as the trigger, then add an action like **"Add comment to incident"** — actions can pull in **dynamic content** from the trigger (resource group, alert message/severity, entities, etc.) rather than only static text. Playbooks are then wired up to fire automatically via an analytics rule's automated response (legacy, deprecated as noted earlier) or, correctly going forward, via an **automation rule**, or triggered manually from an incident.
+
+### Matching playbook trigger type to how it's called
+A playbook's trigger type restricts where it can be invoked from: an automation rule using an **"when incident created/updated"** trigger can only call playbooks built on the **incident trigger**, and an automation rule using the **"when alert is created"** trigger can only call playbooks built on the **alert trigger** — the trigger types have to match. Alert-triggered automation is mainly useful for responding to alerts from analytics rules that have incident creation *disabled*, since otherwise there'd be no incident yet to attach an incident-trigger playbook to; note that the only condition currently configurable on an alert-created automation rule trigger is which analytics rule(s) it applies to.
+
+When a playbook's action needs to talk to an external resource (send an email, post to Teams, open a ServiceNow ticket), you authenticate that connector to the relevant account/provider (e.g., a Microsoft 365 mailbox) once during playbook design — this authentication is a property of the connector, not something Sentinel manages for you.
+
+*Verified against: [Automate threat response with playbooks in Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/automation/automate-responses-with-playbooks), [Create and manage Microsoft Sentinel playbooks](https://learn.microsoft.com/en-us/azure/sentinel/automation/create-playbooks), [Automate and run Microsoft Sentinel playbooks](https://learn.microsoft.com/en-us/azure/sentinel/automation/run-playbooks), and [Create and use Microsoft Sentinel automation rules to manage response](https://learn.microsoft.com/en-us/azure/sentinel/create-manage-use-automation-rules) (Microsoft Learn).*
 
 ## Connecting Microsoft Defender XDR
 
