@@ -106,6 +106,11 @@ For **AI-specific threats** (prompt injection, model extraction, adversarial inp
 | Embed security scanning into CI/CD pipelines | DevOps security (Defender for Cloud) |
 | Unified patching across Azure + on-prem/multicloud | Azure Update Manager |
 
+**Exam triggers (phrase → combined solution):**
+- *"new subscriptions must automatically inherit our security baseline"* → **Landing zones + Management Groups + Azure Policy initiatives**
+- *"prescriptive controls AND prove compliance continuously"* → **MCSB + Defender for Cloud regulatory compliance dashboard**
+- *"secure the app from commit to production"* → **DevOps security (Defender for Cloud) + workload identity federation + secret/SAST/IaC scanning**
+
 ---
 
 # Domain 2 — Design security operations, identity, and compliance capabilities (25–30%)
@@ -461,6 +466,13 @@ Applying **Conditional Access (CA)** controls to AI agent identities in **Micros
 | Store app secrets/keys/certs centrally | Azure Key Vault (Managed HSM for FIPS) |
 | Detect on-prem AD attacks (DCSync, Golden Ticket) | Defender for Identity |
 
+**Exam triggers (phrase → combined solution):**
+- *"grant only if MFA AND compliant device AND trusted location"* → **Conditional Access + Intune compliance + named locations**
+- *"immediately cut off a terminated employee's active sessions"* → **Continuous Access Evaluation + Entra ID Protection** (user disabled/high-risk)
+- *"partners sign in with their own credentials but we still enforce MFA"* → **Entra B2B + cross-tenant access settings + Conditional Access**
+- *"simplest hybrid auth that survives an on-prem outage"* → **Password Hash Sync** (not PTA/federation)
+- *"phishing-resistant auth for high-value apps only"* → **Authentication strengths + Conditional Access**
+
 ## 2.3 Solutions for securing privileged access
 
 ### Privileged Identity Management (PIM) & Just-in-Time (JIT) access
@@ -658,6 +670,12 @@ Patterns combine per tier: Critical = short window + mandatory approval; High = 
 | Secure RDP/SSH to VMs without public IPs | Azure Bastion |
 | Open VM management ports only when needed | Just-in-time VM access (Defender for Servers) |
 
+**Exam triggers (phrase → combined solution):**
+- *"admins elevate only when needed, with approval, from a locked-down device"* → **PIM + PAW + Conditional Access**
+- *"right-size and time-limit permissions across Azure, AWS, and GCP"* → **Entra Permissions Management (CIEM) + PIM**
+- *"admin RDP/SSH without exposing management ports to the internet"* → **Azure Bastion + JIT VM access + NSGs**
+- *"scale privileged access for a large team without per-user config drift"* → **PIM for Groups (role-assignable group)**
+
 ## 2.4 Solutions for regulatory compliance
 
 ### Compliance controls for regulated agent deployments
@@ -691,6 +709,11 @@ Translating regulations (**EU data privacy/GDPR, SOC 2, HIPAA, ISO 27001, EU AI 
 | Enforce/deny non-compliant resource configs | Azure Policy regulatory initiatives |
 | Continuously validate cloud posture vs standards | Defender for Cloud Regulatory Compliance dashboard |
 
+**Exam triggers (phrase → combined solution):**
+- *"map to ISO/NIST, score our gaps, remediate, and evidence for auditors"* → **Compliance Manager + Azure Policy initiatives + Defender for Cloud compliance dashboard**
+- *"classify regulated data, stop it leaving, and retain per law"* → **Purview sensitivity labels + DLP + Data Lifecycle/Records Management**
+- *"data residency: block deployments outside an approved region"* → **Azure Policy (deny by location) + landing zones**
+
 ---
 
 # Domain 3 — Design security solutions for infrastructure (25–30%)
@@ -722,6 +745,11 @@ Translating regulations (**EU data privacy/GDPR, SOC 2, HIPAA, ISO 27001, EU AI 
 | Visualize attack paths to crown-jewel assets | Security Exposure Management (attack paths) |
 | Track posture by security program/initiative | Security Exposure Management (initiatives) |
 
+**Exam triggers (phrase → combined solution):**
+- *"show the attack path from an internet-exposed VM to a Key Vault spanning on-prem + cloud"* → **Defender CSPM + Security Exposure Management (attack paths) + Azure Arc**
+- *"one posture + threat view across Azure, AWS, GCP, and on-prem"* → **Defender for Cloud multicloud connectors + Azure Arc**
+- *"find internet-facing assets we don't know about, then reduce exposure"* → **Defender EASM + Security Exposure Management**
+
 ## 3.2 Securing server and client endpoints
 
 **Servers** — **Defender for Servers** (Plan 1 = core EDR via Defender for Endpoint; **Plan 2** adds vulnerability assessment, **JIT VM access**, file integrity monitoring, agentless scanning, free 500 MB/day log ingestion). Multi-platform (Windows/Linux), on-prem/multicloud via Arc. Apply **security baselines** (Azure security baseline / CIS) and **Azure Update Manager** for patching.
@@ -745,6 +773,12 @@ Translating regulations (**EU data privacy/GDPR, SOC 2, HIPAA, ISO 27001, EU AI 
 | Monitor OT/ICS/SCADA networks | Defender for IoT (OT monitoring) |
 | Unique rotating local-admin passwords | Windows LAPS |
 | Patch servers across Azure/on-prem/multicloud | Azure Update Manager |
+
+**Exam triggers (phrase → combined solution):**
+- *"server EDR + open management ports only on request + file integrity monitoring"* → **Defender for Servers Plan 2** (bundles JIT VM access + FIM)
+- *"only healthy, compliant devices reach corporate resources"* → **Intune compliance + Defender for Endpoint + Conditional Access**
+- *"detect threats on factory-floor PLCs/SCADA and correlate in the SOC"* → **Defender for IoT (OT) + Microsoft Sentinel**
+- *"stop lateral movement via shared local-admin passwords"* → **Windows LAPS** (+ enterprise access model)
 
 ## 3.3 Securing SaaS, PaaS, and IaaS services
 
@@ -772,6 +806,11 @@ Translating regulations (**EU data privacy/GDPR, SOC 2, HIPAA, ISO 27001, EU AI 
 | Threat protection for Azure OpenAI | Defender for AI Services |
 | Govern data used by AI apps | Purview DSPM for AI |
 
+**Exam triggers (phrase → combined solution):**
+- *"containerized app: scan images, detect runtime threats, no stored secrets"* → **Defender for Containers + AKS workload identity + Key Vault CSI driver**
+- *"public web app: OWASP protection + DDoS + hidden backend"* → **WAF on Front Door + DDoS Protection + Private Link**
+- *"secure Azure OpenAI: no keys, private, threat detection + data governance"* → **Managed identity + Private Endpoint + Defender for AI Services + Purview DSPM for AI**
+
 ## 3.4 Network security and Security Service Edge (SSE)
 
 **Network design best practices** — **segment** (hub-spoke or **Virtual WAN**), **deny-by-default** with **NSGs** + **Azure Firewall** (or 3rd-party NVA); eliminate public exposure with **Private Link / private endpoints**; encrypt in transit (TLS); **DDoS Protection** on public-facing; centralize inspection in the hub. Zero Trust: never trust based on network location alone.
@@ -794,6 +833,11 @@ Together they extend **Zero Trust** to web, SaaS, AI, and private-app traffic wi
 | Replace VPN with per-app private access (ZTNA) | Entra Private Access |
 | Protect public IPs from volumetric attacks | Azure DDoS Protection |
 | Global segmented backbone connectivity | Azure Virtual WAN |
+
+**Exam triggers (phrase → combined solution):**
+- *"replace VPN, per-app access to on-prem, apply Conditional Access to private apps"* → **Entra Private Access + Conditional Access**
+- *"filter employees' internet/SaaS traffic AND ensure it always flows through our controls"* → **Entra Internet Access + compliant network check in Conditional Access**
+- *"deny-by-default network, central inspection, no public PaaS endpoints"* → **Azure Firewall (hub) + NSGs + Private Link**
 
 ---
 
@@ -826,6 +870,11 @@ Together they extend **Zero Trust** to web, SaaS, AI, and private-app traffic wi
 | Prevent Copilot oversharing | Purview DSPM for AI (data risk assessments) |
 | Audit Copilot prompts/responses | Purview Audit |
 
+**Exam triggers (phrase → combined solution):**
+- *"stop M365 Copilot from surfacing overshared sensitive data"* → **Purview sensitivity labels + DSPM for AI + SharePoint Advanced Management**
+- *"block phishing/malicious links AND train users who click"* → **Defender for Office 365 (Safe Links/Attachments + attack simulation training)**
+- *"discover unsanctioned SaaS and block risky in-session actions"* → **Defender for Cloud Apps (shadow IT discovery + session policies via CA app control)**
+
 ## 4.2 Securing applications
 
 **Portfolio posture & threat modeling** — inventory apps, classify by criticality/data sensitivity; **threat-model** business-critical apps with **STRIDE** (and **OWASP Top 10** / **API Security Top 10** / **ATLAS** for AI apps) to find design-level risks early.
@@ -850,6 +899,11 @@ Together they extend **Zero Trust** to web, SaaS, AI, and private-app traffic wi
 | OWASP protection for web app (regional) | Azure WAF on Application Gateway |
 | Find code/secret/IaC flaws pre-deploy | DevOps security (Defender for Cloud) |
 | Design-level threat identification | STRIDE threat modeling |
+
+**Exam triggers (phrase → combined solution):**
+- *"app authenticates to Azure and CI/CD deploys — no secrets anywhere"* → **Managed identity (runtime) + workload identity federation (pipeline)**
+- *"publish an API with OAuth, throttling, and OWASP protection"* → **Azure API Management + WAF (Front Door)**
+- *"secure the whole SDLC for a business-critical app"* → **STRIDE threat modeling + DevOps security (SAST/DAST/SCA/secret/IaC) + WAF at runtime**
 
 ## 4.3 Securing an organization's data
 
@@ -882,3 +936,9 @@ Together they extend **Zero Trust** to web, SaaS, AI, and private-app traffic wi
 | Threat alerts for SQL/Cosmos/OSS DBs | Defender for Databases |
 | Render data unrecoverable on request | Crypto-shred (delete CMK) |
 | Show sensitive data on attack paths | Defender CSPM (data-aware posture) |
+
+**Exam triggers (phrase → combined solution):**
+- *"SQL data unreadable even to DBAs/admins + threat alerts on the database"* → **Always Encrypted + Defender for SQL**
+- *"per-tenant encryption where the customer can revoke access / crypto-shred"* → **CMK in customer Key Vault + delete key (crypto-shred)**
+- *"find sensitive data and show where it's exposed on attack paths"* → **Purview classification + Defender CSPM (data-aware posture) + Security Exposure Management**
+- *"lock down storage: no public access, malware scan on upload"* → **Private Endpoint + Entra auth (disable keys/SAS) + Defender for Storage**
