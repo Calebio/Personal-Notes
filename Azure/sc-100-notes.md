@@ -27,13 +27,34 @@ Pass score: 700/1000. *Source: [Microsoft Learn SC-100 Study Guide](https://lear
 
 **Security updates:** keep systems patched to close known-vuln attack surface. **Azure Update Manager** (unified patch management across Azure, Arc-enabled on-prem/multicloud); **Defender Vulnerability Management** to prioritize by risk.
 
-*Frameworks referenced:* MCRA (reference architectures), Azure Security Benchmark/MCSB, and the **Zero Trust** "assume breach" principle.
+*Frameworks referenced:* MCRA (reference architectures), MCSB (Microsoft Cloud Security Benchmark — formerly Azure Security Benchmark), and the **Zero Trust** "assume breach" principle.
 
 ## 1.2 Align with MCRA and Microsoft Cloud Security Benchmark (MCSB)
-- Best practices for cybersecurity capabilities and controls
-- Best practices for protecting against insider, external, and supply chain attacks
-- Design AI solutions aligned to MCSB
-- Align with the Zero Trust adoption framework
+
+**Capabilities & controls best practices:** **MCRA** shows *which* Microsoft capabilities to use and how they integrate; **MCSB** gives the *prescriptive controls* (mapped to CIS/NIST/PCI). Core principles: **defense-in-depth, least privilege, assume breach, identity as the primary perimeter, native/integrated tooling first**, and continuous posture measurement (Secure Score).
+
+*Key MCRA best practices:* know and use the security capabilities available to you; take a **multi-technology** approach; keep a **holistic, full-lifecycle** view; ensure security **enables productivity** (not just reduces risk); protect **privileged accounts/systems** with high-security monitoring + response; mitigate **ransomware starting with the most impactful controls**.
+
+*MCSB control domains → example controls (know the domain-to-control pattern):*
+
+| MCSB control domain | Example control |
+|---------------------|-----------------|
+| Data Protection (DP) | DP-1: discover, classify, label sensitive data |
+| Asset Management (AM) | AM-1: track asset inventory and their risks |
+| Posture & Vulnerability Mgmt (PV) | PV-1: define/establish secure configurations |
+| Endpoint Security (ES) | ES-1: use Endpoint Detection and Response (EDR) |
+| Backup & Recovery (BR) | BR-1: ensure regular automated backups |
+| DevOps Security (DS) | DS-1: conduct threat modeling |
+| Governance & Strategy (GS) | GS-1: align roles, responsibilities, accountabilities |
+
+**Zero Trust adoption framework** — three principles: **verify explicitly, use least-privilege access, assume breach** — applied across the six pillars: **identity, endpoints, apps, data, infrastructure, network** (+ visibility/automation/governance layer).
+
+**Defending by attack class:**
+- **Insider threats** — **Purview Insider Risk Management**, DLP, least privilege + **separation of duties**, PIM/JIT, access reviews, audit logging.
+- **External threats** — MFA + Conditional Access, **Defender XDR**, **Defender EASM** (shrink external attack surface), patching, network segmentation.
+- **Supply chain attacks** — **SCA/dependency scanning** + signed artifacts + secure DevOps for your own code; for third-party: restrict **OAuth app consent** and use **Entra app governance / Defender for Cloud Apps** to catch malicious apps; verify software integrity (SolarWinds-class risk).
+
+*Cross-reference:* AI-aligned-to-MCSB and Zero Trust for agents are covered in depth in the multi-agent module below.
 
 ### Securing multi-agent systems with Azure zero-trust architecture
 Making every agent, call, and data item **authenticated, authorized, and auditable** — reduces cross-tenant leak risk and makes compliance evidence repeatable. *(Cross-cutting: also touches [D3.4 network](#34-network-security-and-security-service-edge-sse) and [D4.3 data](#43-securing-an-organizations-data).)*
@@ -71,19 +92,41 @@ Making every agent, call, and data item **authenticated, authorized, and auditab
 - **T**ampering (modifying messages in transit / data at rest) → network isolation, encrypted channels
 - **R**epudiation (denying an action occurred) → immutable audit schemas
 - **I**nformation disclosure (leaking proprietary/tenant data) → tenant isolation, data residency
-- **D**enial of service (resource exhaustion) →
+- **D**enial of service (resource exhaustion) → rate limiting/throttling/quotas, autoscaling, DDoS Protection, wallet-attack detection
 - **E**levation of privilege (permissions beyond scope) → per-agent identity, JIT
 
 For **AI-specific threats** (prompt injection, model extraction, adversarial inputs) use the **OWASP LLM Top 10**. This infra layer (identity, network, data isolation, compliance) applies regardless of which AI-specific defenses sit above it.
 
 **SIEM/SOAR integration:** the controls generate managed-identity audit logs, network flow logs, tenant-context records, and compliance evidence. Feed **OpenTelemetry traces + structured logs + immutable audit records** (agent ID, timestamp, action) into **Microsoft Sentinel (SIEM)** for unified cross-tenant threat detection and **SOAR** for automated response — e.g., a compromised agent's anomalous call pattern lets Sentinel correlate across tenants and trigger an automated containment runbook.
 
+### Decision table — zero-trust multi-agent controls
+
+| Scenario | Service / Control |
+|----------|-------------------|
+| Give each agent its own identity, limit blast radius | System-assigned managed identity + scoped RBAC |
+| Agent acts as a user for customer-owned resources | OBO federated token exchange |
+| No stored secrets in Kubernetes pods | AKS workload identity federation |
+| Validate agent-to-agent API calls | JWT validation (signature/issuer/audience) + oid allowlist |
+| Prevent pod-to-pod lateral movement | Deny-by-default NetworkPolicy + service mesh mTLS |
+| Remove public endpoints | Azure Private Link |
+| Per-tenant data isolation | tenant_id partition key + per-tenant CMK |
+| Temporary elevation of sensitive roles | Azure PIM |
+| Store and rotate secrets | Azure Key Vault (blue-green rotation) |
+| Detect anomalous agent behavior across tenants | Microsoft Sentinel (SIEM) + SOAR runbook |
+
+**Exam triggers (phrase → combined solution):**
+- *"agents must authenticate, be least-privilege, and be auditable end-to-end"* → **Per-agent managed identity + scoped RBAC + JWT validation + tenant-context middleware**
+- *"a compromised pod must not reach other agents or other tenants' data"* → **NetworkPolicy deny-by-default + service mesh mTLS + tenant_id isolation**
+- *"customer can cryptographically prove erasure / revoke our access"* → **Per-tenant CMK in customer Key Vault (crypto-shred)**
+
 ## 1.3 Align with the Cloud Adoption Framework (CAF) and Azure Well-Architected Framework (WAF)
 
 **Three key frameworks (know what each is for):**
 - **MCRA** (Microsoft Cybersecurity Reference Architectures) — diagrams of Microsoft security capabilities and how they integrate (the "what").
 - **MCSB** (Microsoft Cloud Security Benchmark) — prescriptive control baseline mapped to CIS/NIST/PCI (the "controls").
-- **CAF** (Cloud Adoption Framework) — end-to-end lifecycle: **Strategy → Plan → Ready → Adopt → Govern → Manage → Secure**. **WAF** (Well-Architected Framework) — workload design across 5 pillars: **Reliability, Security, Cost Optimization, Operational Excellence, Performance Efficiency**.
+- **CAF** (Cloud Adoption Framework) — end-to-end lifecycle across 7 methodologies. **Foundational** (run **sequentially** to build the Azure foundation): **Strategy → Plan → Ready → Adopt**. **Operational** (run **in parallel/continuously** throughout the lifecycle): **Govern** (control, compliance, cost), **Secure** (protect against threats), **Manage** (operational excellence). **WAF** (Well-Architected Framework) — workload design across 5 pillars: **Reliability, Security, Cost Optimization, Operational Excellence, Performance Efficiency**.
+
+> **How they fit together:** **CAF** defines the cloud strategy/adoption approach → **Azure landing zones** implement the secure, governed environment aligned to CAF → **WAF** guides the design of each individual workload deployed *into* those landing zones.
 
 **Azure landing zones** — pre-architected, governed environment following CAF. **Platform** landing zones (shared: identity, management, connectivity) vs **application** landing zones (workloads). Enforce security centrally via **Management Groups + Azure Policy** (guardrails inherit down the hierarchy), RBAC, and hub-spoke/vWAN networking. Bakes in Zero Trust, logging, and policy from day one.
 
@@ -210,6 +253,10 @@ Sentinel is the **convergence point** — correlate an identity attack (Entra/M3
 
 **Sentinel data lake:** cloud-native, **Parquet** open format, **single copy mirrored from analytics tier** (free when retention matches), storage/compute separation, KQL + Jupyter engines, activity auditing. Can ingest high-volume/low-value logs directly to data lake only. Analytics capabilities: **KQL jobs** (async, can promote to analytics), **summary rules** (scheduled aggregations 20 min–24 hr bins), **search jobs** (up to a year, forensics), **Jupyter notebooks** (Python/ML).
 
+*Design principles:* **logging** — make everything observable, monitor to avert failures, root-cause + distributed tracing, standardize logs/metrics, automate, treat config as code. **auditing** — reconstruct the full sequence of user actions, protect audit data to the highest standard, support flexible report ranges, keep raw data in original form for analysts, and cover primary sources (auth, security logs).
+
+**Audit-log access roles (exam detail):** to read the M365 audit log you need at least one of **Report Reader** or **Security Reader**; alternatively **Security Administrator**, **Global Reader**, or **Administrator** also work.
+
 **Microsoft Purview Audit** (M365 productivity):
 - **Audit (Standard)** — 180 days; included with most M365 licenses.
 - **Audit (Premium)** — 1 year (Exchange/SharePoint/Entra ID), extendable to **10 years** with add-on; high-value forensic events (**MailItemsAccessed, SearchQueryInitiated**) for breach investigation.
@@ -225,6 +272,20 @@ Sentinel is the **convergence point** — correlate an identity attack (Entra/M3
 | Dedicated cluster | 100+ GB/day, CMK needed | Better perf/security, higher min commitment |
 
 Combining operational + security data in one workspace = better visibility, commitment-tier savings, simpler management; use **table-level RBAC** to protect sensitive tables.
+
+*Workspace-design prerequisites (gather first):* regulatory **data-residency** requirements; **data sources** (built-in connectors to internal + external solutions); **user roles & data-access levels**; **daily ingestion rate** (cost planning).
+
+*8 critical checks that drive workspace topology:*
+1. **New or existing** workspace?
+2. Data in **different Azure geographies**? (residency)
+3. **Multiple Azure tenants**? (→ Lighthouse)
+4. **Splitting billing / charge-back**?
+5. Collecting any **non-SOC data**? (mixed operational + security)
+6. **Multiple regions**?
+7. **Segregating data / boundaries by ownership**?
+8. **Controlling data access by data source / table**? (→ table-level RBAC)
+
+More "yes" answers push you toward **separate/regional/multiple** workspaces; mostly "no" favors a **single** workspace for correlation.
 
 *Multitenant/MSSP:* **Distributed** (workspace per tenant + **Azure Lighthouse** cross-tenant; full isolation), **Centralized** (single provider workspace; simple, cross-customer analytics), **Hybrid** (customer workspaces export aggregates centrally). Note: **diagnostics-based connectors can only send to workspaces in the same tenant** as the resource.
 
@@ -313,6 +374,28 @@ Public knowledge base of attacker **tactics** (goals) and **techniques** (method
 - ✅ SOAR, including Microsoft Sentinel and Microsoft Defender XDR
 - ✅ Security workflows: incident response, threat hunting, incident management
 - ✅ Threat detection coverage using MITRE ATT&CK matrices (Enterprise, Cloud, Mobile, ICS)
+
+### Decision table — security operations (Domain 2.1)
+
+| Scenario | Service / Feature |
+|----------|-------------------|
+| Real-time visibility across hybrid/multicloud | Azure Monitor + Azure Arc |
+| Real-time detection, alerting, hunting | Sentinel analytics tier |
+| Long-term log retention (up to 12 years) | Sentinel data lake tier |
+| Deep detection across endpoint/identity/email | Microsoft Defender XDR |
+| Broad cross-source correlation (SIEM) | Microsoft Sentinel |
+| Automate repeatable response workflows | Sentinel automation rules + playbooks (Logic Apps) |
+| Auto-contain active attacks at machine speed | Defender XDR automatic attack disruption |
+| Virtual Tier 1/2 auto-investigation | Defender XDR AIR |
+| Centralized M365 audit incl. Copilot | Purview Audit |
+| Find detection-coverage gaps | MITRE ATT&CK coverage (Sentinel) + ATLAS for AI |
+| NL queries / summarize incidents | Security Copilot |
+| Single pane across SIEM+SOAR+XDR | Microsoft Defender portal |
+
+**Exam triggers (phrase → combined solution):**
+- *"deep detection AND broad long-term correlation across clouds"* → **Defender XDR (depth) + Microsoft Sentinel (breadth) in the unified Defender portal**
+- *"cut analytics cost but keep verbose logs for compliance"* → **Analytics tier for high-value data + data lake tier + summary rules**
+- *"auto-triage and contain high-confidence threats, humans handle the rest"* → **Attack disruption + AIR + automation rules with approval for high-impact actions**
 
 ## 2.2 Solutions for identity and access management
 
@@ -429,6 +512,27 @@ Applying **Conditional Access (CA)** controls to AI agent identities in **Micros
 
 *Access reviews for agent identities:* Entra ID → **Identity Governance > Access reviews** → new review → scope = **Workload identities**, specify agent service principals → set frequency (monthly/quarterly) + reviewers (business owners/project managers). Reviewers approve (keep) or deny (deactivate). Prevents agent accumulation; provides a governance checkpoint. (Contoso: monthly review of Copilot Studio agents by the compliance-automation lead; unconfirmed agents flagged and disabled.)
 
+### Decision table — Entra Agent ID + Conditional Access
+
+| Scenario | Service / Feature |
+|----------|-------------------|
+| Agent acts for a signed-in user | OBO flow — scope CA to the user (full controls) |
+| Autonomous agent, no user present | App-only — scope CA to the agent service principal |
+| Agent with its own mailbox/user account | Scope CA to that user account |
+| Block a legacy/compromised agent's auth | CA block policy (report-only → on) |
+| Restrict agents to corporate regions | CA named locations |
+| Auto-cover new agents by data sensitivity | Custom security attributes in CA |
+| Auto-cover all agents from one blueprint | Blueprint-level CA targeting |
+| Prevent agent sprawl at creation | Agent 365 settings / remove Power Platform Admin role |
+| Disable one agent immediately (IR) | Entra > Agents > disable identity (or blueprint) |
+| Monitor agent create/change/delete | Audit logs (ApplicationManagement, agentType) + Sentinel |
+| Recertify agents periodically | Access reviews (workload identities) |
+
+**Exam triggers (phrase → combined solution):**
+- *"an autonomous agent — enforce MFA"* → **trap: you can't; use block / named locations / sign-in frequency / risk-based CA** (no user to prompt)
+- *"safely decommission an obsolete agent without deleting it"* → **CA block policy scoped by object ID (report-only → on)** or **disable the agent identity**
+- *"consistent controls on every future agent automatically"* → **Custom security attributes or blueprint-level CA + Agent 365 security templates**
+
 ### Identity & access management (non-agent)
 
 **Access to SaaS/PaaS/IaaS/hybrid/multicloud** — enforce access through three control layers: **identity** (Entra ID as the control plane, CA, MFA), **network** (Private Link/private endpoints, NSGs, firewall), and **application** (per-app roles, app proxy). Prefer identity-based auth (managed identities, workload identities) over keys/secrets everywhere.
@@ -437,7 +541,7 @@ Applying **Conditional Access (CA)** controls to AI agent identities in **Micros
 - Hybrid sync options: **Password Hash Sync (PHS)** (simplest, recommended), **Pass-through Auth (PTA)** (on-prem validates passwords), **Federation/AD FS** (legacy, most complex). **Entra Connect / Cloud Sync** does the syncing (Cloud Sync = lightweight agent, multi-forest).
 - Multicloud: use Entra ID as the single identity provider for AWS/GCP; **Defender for Cloud** + **Permissions Management (CIEM)** for cross-cloud entitlements.
 
-**External identities:** **B2B** (invite guests, they use their own identity/home tenant), **B2B direct connect** (Teams shared channels), **Entra External ID** (formerly Azure AD B2C) for customer-facing apps, and **decentralized identity / Verified ID** (issuer→holder→verifier model, user holds credentials in a wallet). **Cross-tenant access settings** govern inbound/outbound B2B trust (incl. trusting other tenants' MFA/device claims).
+**External identities:** **B2B collaboration** (invite guests, they use their own identity/home tenant), **B2B direct connect** (Teams shared channels), **Entra External ID** (the unified CIAM platform, successor to Azure AD B2C) for customer-facing apps, and **decentralized identity / Verified ID** (issuer→holder→verifier model, user holds credentials in a wallet). **Cross-tenant access settings** govern inbound/outbound B2B trust (incl. trusting other tenants' MFA/device claims).
 
 **Modern authN/authZ strategy:**
 - **Conditional Access** = the Zero Trust policy engine: signals (user, device, location, app, risk) → decision (block / grant + controls like MFA/compliant device / session).
@@ -642,6 +746,25 @@ Patterns combine per tier: Critical = short window + mandatory approval; High = 
 
 *Overarching principle:* A privileged access strategy holds together because the **decisions behind the controls can be explained and defended**, not because every control is simply switched on.
 
+### Decision table — PIM / JIT
+
+| Scenario | Service / Feature |
+|----------|-------------------|
+| Default JIT posture for privileged roles | Eligible assignment (activate on demand) |
+| Immediate, time-bound standing access (break-glass) | Active assignment |
+| Require approval + MFA + justification before elevation | PIM activation controls |
+| Auto-expire elevated access after a task | Activation duration (1–24 hrs) |
+| Scale JIT across a whole team, one policy | PIM for Groups (role-assignable group) |
+| JIT at subscription/RG/resource scope | PIM for Azure resource roles |
+| Workload identity that can't do interactive activation | Permanent scoped RBAC (not PIM) |
+| Prove who elevated, when, and why | PIM audit logs |
+| Recertify eligible assignments | Access reviews |
+
+**Exam triggers (phrase → combined solution):**
+- *"eliminate standing Global Admin but keep a recovery path"* → **Make role eligible via PIM + 2 permanent break-glass accounts (offline creds)**
+- *"20 engineers need the same JIT access without config drift"* → **PIM for Groups with a role-assignable group**
+- *"an AI agent/service needs to write to storage — should it be PIM-eligible?"* → **No — permanent least-privilege RBAC** (non-interactive can't activate); PIM governs the human who configures it
+
 ### Privileged access (beyond PIM)
 
 **Enterprise access model** (replaces the old tier 0/1/2 AD model) — organize privileged access by **control plane** (identity/management: Entra roles, subscriptions) vs **data/workload plane**, plus **management, user/app access**. Principle: privileged access originates only from **secured, isolated** paths so a compromised workload can't reach admin control.
@@ -694,6 +817,8 @@ Translating regulations (**EU data privacy/GDPR, SOC 2, HIPAA, ISO 27001, EU AI 
 
 **Microsoft Purview (data compliance)** — **Information Protection** (sensitivity labels, classification), **Data Loss Prevention (DLP)**, **Data Lifecycle / Records Management** (retention/disposal), **Insider Risk Management**, **Communication Compliance**, **eDiscovery/Audit**. Addresses "protect and prove" for regulated data.
 
+**Microsoft Priva (privacy)** — distinct from Purview's data-protection focus, Priva addresses **privacy requirements**: **Privacy Risk Management** (detect overexposed/overshared personal data, data hoarding, transfers) and **Subject Rights Requests (SRR/DSAR automation)** for GDPR/CCPA-style "right to access/delete" requests. Use when the requirement is about **individuals' privacy rights**, not just data security.
+
 **Azure Policy** — enforce compliance in the resource plane: **regulatory compliance initiatives** (built-in for NIST SP 800-53, PCI-DSS, ISO 27001, CIS, etc.) assigned at management-group scope; **deployIfNotExists/deny** effects auto-remediate or block non-compliant resources.
 
 **Defender for Cloud — Regulatory Compliance dashboard** — continuously assesses your Azure/AWS/GCP posture against standards (MCSB is the default; add PCI-DSS, ISO, NIST, SOC TSP, etc.), shows pass/fail per control with remediation. Use it to **validate and evidence** alignment over time.
@@ -706,12 +831,14 @@ Translating regulations (**EU data privacy/GDPR, SOC 2, HIPAA, ISO 27001, EU AI 
 | Classify and label sensitive data | Purview Information Protection (sensitivity labels) |
 | Prevent sensitive data from leaving | Purview DLP |
 | Retain/dispose records per regulation | Purview Data Lifecycle / Records Management |
+| Automate privacy/subject-rights (DSAR) requests | Microsoft Priva |
 | Enforce/deny non-compliant resource configs | Azure Policy regulatory initiatives |
 | Continuously validate cloud posture vs standards | Defender for Cloud Regulatory Compliance dashboard |
 
 **Exam triggers (phrase → combined solution):**
 - *"map to ISO/NIST, score our gaps, remediate, and evidence for auditors"* → **Compliance Manager + Azure Policy initiatives + Defender for Cloud compliance dashboard**
 - *"classify regulated data, stop it leaving, and retain per law"* → **Purview sensitivity labels + DLP + Data Lifecycle/Records Management**
+- *"handle individuals' data-access/deletion (DSAR) requests and privacy risk"* → **Microsoft Priva** (not Purview — Priva = privacy rights, Purview = data protection)
 - *"data residency: block deployments outside an approved region"* → **Azure Policy (deny by location) + landing zones**
 
 ---

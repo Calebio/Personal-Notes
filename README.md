@@ -1,2 +1,2 @@
-# Azure
+# Personal notes on technologies/exams
 
