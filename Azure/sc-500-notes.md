@@ -1,8 +1,10 @@
 # SC-500 Notes — Cloud and AI Security Engineer Associate
 
 > **Exam:** SC-500 — *Implementing End-to-End Security Controls for Cloud and AI Workloads* (replaces AZ-500, which retired 31 Aug 2026).
-> **Booked:** 24 Oct 2026 · **Pass score:** 700/1000
+> **Booked:** 2 Nov 2026 · **Pass score:** 700/1000
 > Organized by the **Skills Measured** blueprint (as of July 2026). Lessons are condensed to the points most likely to be tested and filed under the matching objective. Each lesson ends with a **🎯 Exam focus** line; trigger keywords go into the cheat sheet at the bottom.
+
+> ⚡ **Short on time? Read `sc-500-cram-sheet.md` first.** It has keyword → service pairs for every AI objective plus a recap of the other domains.
 
 ## Exam Domains (weightings)
 1. **Manage identity, access, and governance** (20–25%)
